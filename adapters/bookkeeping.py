@@ -155,7 +155,6 @@ class MockBookkeepingAdapter(BookkeepingAdapter):
         )
 
 
-
 class BookingError(Exception):
     pass
 
