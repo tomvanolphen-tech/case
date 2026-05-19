@@ -1,7 +1,8 @@
 from core.models import Concern, ExtractionResult, JournalLine, ProposedBooking, TenantConfig, ValidationResult
 
 
-def _resolve_account_code(result: ExtractionResult, tenant_config: TenantConfig) -> str:
+def _resolve_account_code(result: ExtractionResult, tenant_config: TenantConfig) -> tuple[str, str]:
+    """Returns (account_code, reason) so the operator can see why this account was chosen."""
     mapping = tenant_config.account_mapping
     vendors = mapping.get("vendors", {})
 
@@ -11,10 +12,13 @@ def _resolve_account_code(result: ExtractionResult, tenant_config: TenantConfig)
     # Priority: extracted suggestion → vendor lookup → default
     suggested = result.fields.get("suggested_account_code")
     if suggested and suggested.value:
-        return str(suggested.value)
+        reason = f"AI-suggestie (confidence: {suggested.confidence:.2f})"
+        return str(suggested.value), reason
     if vendor_name and vendor_name in vendors:
-        return str(vendors[vendor_name])
-    return str(mapping.get("default_expense", "4000"))
+        reason = f"Vendor-mapping in config: {vendor_name} → {vendors[vendor_name]}"
+        return str(vendors[vendor_name]), reason
+    default = str(mapping.get("default_expense", "4000"))
+    return default, "Standaard kostenrekening (geen specifieke match gevonden)"
 
 
 def _fv(result: ExtractionResult, field_name: str, default=None):
