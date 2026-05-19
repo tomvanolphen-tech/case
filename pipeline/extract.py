@@ -190,6 +190,17 @@ def extract(record: InvoiceRecord, tenant_config: TenantConfig) -> ExtractionRes
             confidence=float(field_data.get("confidence", 0.0)),
         )
 
+    # Parse line items
+    line_items: list[LineItem] = []
+    for li in parsed.get("line_items", []):
+        line_items.append(LineItem(
+            description=li.get("description", ""),
+            quantity=li.get("quantity"),
+            unit_price=li.get("unit_price"),
+            amount=float(li.get("amount", 0.0)),
+            vat_rate=li.get("vat_rate"),
+        ))
+
     # Support legacy uncertainty_notes: convert to a single info concern
     agent_concerns = _parse_concerns(parsed.get("agent_concerns", []))
     if not agent_concerns and parsed.get("uncertainty_notes"):
@@ -203,6 +214,7 @@ def extract(record: InvoiceRecord, tenant_config: TenantConfig) -> ExtractionRes
     return ExtractionResult(
         fields=fields,
         overall_confidence=float(parsed.get("overall_confidence", 0.0)),
+        line_items=line_items,
         agent_concerns=agent_concerns,
         system_prompt=system,
         user_prompt=user,
