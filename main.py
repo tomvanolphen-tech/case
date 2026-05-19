@@ -129,7 +129,7 @@ def run_pipeline(invoice_file: str, tenant_slug: str | None = None, auto_classif
     })
 
     # 7. Review (operator CLI)
-    outcome = run_review(record, proposed)
+    outcome = run_review(record, proposed, tenant_config=tenant_config, validation=validation)
     record.review_outcome = outcome
     log_step(run_log, "review", {
         "status": outcome.action,
