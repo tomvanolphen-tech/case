@@ -1,4 +1,6 @@
 import json
+import re
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -6,6 +8,16 @@ import yaml
 
 import config
 from core.models import RuleProposal, TenantConfig
+
+
+@dataclass
+class ParsedRule:
+    number: int
+    date: str
+    run_id: str
+    scope: str
+    scope_value: str | None
+    rule_text: str
 
 
 def _tenant_dir(slug: str) -> Path:
