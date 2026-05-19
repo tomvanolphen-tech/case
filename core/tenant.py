@@ -5,7 +5,7 @@ from pathlib import Path
 import yaml
 
 import config
-from core.models import TenantConfig
+from core.models import RuleProposal, TenantConfig
 
 
 def _tenant_dir(slug: str) -> Path:
@@ -50,12 +50,17 @@ def append_example(slug: str, entry: dict) -> None:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
-def append_rule(slug: str, rule_text: str) -> None:
+def append_rule(slug: str, proposal: RuleProposal, run_id: str) -> None:
     path = _tenant_dir(slug) / "learned_rules.md"
     existing = path.read_text(encoding="utf-8") if path.exists() else f"# Geleerde regels voor {slug}\n"
     count = existing.count("## Regel")
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    new_rule = f"\n## Regel {count + 1} — {date_str}\n{rule_text}\n"
+    scope_line = f"**Scope:** {proposal.scope}" + (f" — {proposal.scope_value}" if proposal.scope_value else "")
+    new_rule = (
+        f"\n## Regel {count + 1} — {date_str} (run: {run_id})\n"
+        f"{scope_line}\n"
+        f"{proposal.rule_text}\n"
+    )
     path.write_text(existing.rstrip() + new_rule, encoding="utf-8")
 
 
