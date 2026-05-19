@@ -1,0 +1,24 @@
+FACTUUR
+
+Staples Nederland B.V.
+Basicweg 16
+3821 BR Amersfoort
+BTW: NL001234567B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : STA-2024-00892
+Factuurdatum  : 2024-02-05
+
+Omschrijving                          Aantal    Prijs      Totaal
+-----------------------------------------------------------------
+Printpapier A4 80gr (doos 5 ries)          2   € 24,50    € 49,00
+Pennen blauw (doos 20 stuks)               3   €  4,95    € 14,85
+Ordners A4 (pak 10 stuks)                  1   € 18,75    € 18,75
+-----------------------------------------------------------------
+Subtotaal excl. BTW                                        € 82,60
+BTW 21%                                                    € 17,35
+Totaal te betalen                                         € 100,00
