@@ -3,7 +3,8 @@ from adapters.mailbox import MailboxAdapter
 from core.models import InvoiceRecord, ProposedBooking
 
 
-def book(proposed: ProposedBooking, adapter: BookkeepingAdapter) -> str:
+def book(proposed: ProposedBooking, adapter: BookkeepingAdapter) -> tuple[str, dict]:
+    """Returns (booking_id, audit_dict)."""
     return adapter.book(proposed)
 
 
