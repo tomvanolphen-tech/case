@@ -1,0 +1,25 @@
+FACTUUR
+
+Exact Software B.V.
+Molengraaffsingel 33
+2629 JD Delft
+KvK: 27255986
+BTW: NL815975748B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : ES-2024-00891
+Factuurdatum  : 2024-01-08
+Vervaldatum   : 2024-02-07
+
+Omschrijving                          Bedrag
+----------------------------------------------
+Exact Online abonnement januari 2024   € 99,00
+BTW 21%                                € 20,79
+----------------------------------------------
+Totaal te betalen                     € 119,79
+
+Gelieve te betalen op NL91ABNA0417164300 t.n.v. Exact Software B.V.
