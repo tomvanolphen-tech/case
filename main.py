@@ -142,7 +142,10 @@ def run_pipeline(invoice_file: str, tenant_slug: str | None = None, auto_classif
     })
 
     # 8. Book or escalate
-    if outcome.action in ("approve", "force_approve"):
+    if outcome.action == "cancel":
+        # Operator chose [x]: no booking, no log saved
+        return
+    elif outcome.action in ("approve", "force_approve"):
         booking_id = book(proposed, bookkeeping)
         record.status = "booked"
         log_step(run_log, "book_or_escalate", {"status": "booked", "booking_id": booking_id})
