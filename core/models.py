@@ -19,9 +19,19 @@ class Concern:
 
 
 @dataclass
+class LineItem:
+    description: str
+    quantity: float | None
+    unit_price: float | None
+    amount: float
+    vat_rate: float | None
+
+
+@dataclass
 class ExtractionResult:
     fields: dict[str, FieldValue]
     overall_confidence: float
+    line_items: list[LineItem] = field(default_factory=list)
     agent_concerns: list[Concern] = field(default_factory=list)
     system_prompt: str = ""
     user_prompt: str = ""
