@@ -121,6 +121,7 @@ def _print_menu(has_blocking: bool) -> None:
     print("  [c] Veld corrigeren")
     print("  [e] Escaleren")
     print("  [q] Afsluiten (opslaan als geëscaleerd)")
+    print("  [x] Annuleren (niets opslaan, niets boeken)")
     print("-" * 56)
 
 
