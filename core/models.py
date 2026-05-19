@@ -71,6 +71,7 @@ class ProposedBooking:
     invoice_date: str
     amount_gross: float
     currency: str
+    line_items: list[LineItem] = field(default_factory=list)
     concerns: list[Concern] = field(default_factory=list)
 
 
