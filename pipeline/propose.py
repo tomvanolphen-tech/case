@@ -65,5 +65,6 @@ def propose(result: ExtractionResult, validation: ValidationResult, tenant_confi
         invoice_date=_fv(result, "invoice_date", ""),
         amount_gross=gross,
         currency=_fv(result, "currency", tenant_config.default_currency),
+        line_items=result.line_items,
         concerns=all_concerns,
     )
