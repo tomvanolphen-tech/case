@@ -250,7 +250,8 @@ def _correct_field(record: InvoiceRecord, corrections: dict) -> list[str]:
     return rules_saved
 
 
-def run_review(record: InvoiceRecord, proposed: ProposedBooking) -> ReviewOutcome:
+def run_review(record: InvoiceRecord, proposed: ProposedBooking, tenant_config=None, validation=None) -> ReviewOutcome:
+    from pipeline.propose import propose as repropose
     start = time.time()
     corrections: dict = {}
     rules_saved: list[str] = []
