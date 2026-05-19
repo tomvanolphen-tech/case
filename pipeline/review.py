@@ -49,18 +49,29 @@ def _print_extraction(record: InvoiceRecord) -> None:
     ex = record.extraction
     if ex is None:
         return
-    print("\nEXTRACTIE RESULTAAT")
-    fields_order = [
-        "vendor", "invoice_number", "invoice_date", "due_date",
-        "amount_gross", "amount_vat", "amount_net", "vat_rate",
-        "currency", "description", "suggested_account_code",
-    ]
-    for f in fields_order:
-        label = f if f != "suggested_account_code" else "suggested_acct"
-        val = _val_str(ex, f)
-        cs = _conf_str(ex, f)
-        print(f"  {label:<22} {val:<26} {cs}")
-    print(f"\n  overall_confidence: {ex.overall_confidence:.2f}")
+
+    def v(f): return _val_str(ex, f)
+    def c(f): return _conf_str(ex, f)
+
+    print("\n┌─ FACTUUR ──────────────────────────────────────────┐")
+    print(f"│  Leverancier   : {v('vendor'):<34} {c('vendor')}")
+    print(f"│  Factuurnummer : {v('invoice_number'):<34} {c('invoice_number')}")
+    print(f"│  Datum         : {v('invoice_date'):<34} {c('invoice_date')}")
+    print(f"│  Vervaldatum   : {v('due_date'):<34} {c('due_date')}")
+    kp = v('kostenplaats')
+    if kp != "—":
+        print(f"│  Kostenplaats  : {kp:<34} {c('kostenplaats')}")
+    print("├─ BEDRAGEN ─────────────────────────────────────────┤")
+    print(f"│  Subtotaal     : {v('amount_net'):<34} {c('amount_net')}")
+    print(f"│  BTW           : {v('amount_vat'):<34} {c('amount_vat')}")
+    print(f"│  BTW-percentage: {v('vat_rate'):<34} {c('vat_rate')}")
+    print(f"│  Totaal        : {v('amount_gross'):<34} {c('amount_gross')}")
+    print(f"│  Valuta        : {v('currency'):<34} {c('currency')}")
+    print("├─ BOEKHOUD ─────────────────────────────────────────┤")
+    print(f"│  Rekening      : {v('suggested_account_code'):<34} {c('suggested_account_code')}")
+    print(f"│  Omschrijving  : {v('description')[:34]:<34} {c('description')}")
+    print(f"└────────────────────────────────────────────────────┘")
+    print(f"  overall confidence: {ex.overall_confidence:.2f}")
 
 
 def _print_concerns(concerns: list[Concern]) -> None:
