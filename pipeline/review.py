@@ -165,16 +165,20 @@ def _correct_field(record: InvoiceRecord, corrections: dict) -> list[str]:
             print(f"  Onbekend veld '{field_input}'. Beschikbare velden: {', '.join(_FIELD_ALIASES.keys())}")
             continue
 
+        # kostenplaats is stored directly on extraction fields
         current = ex.fields.get(canonical)
         current_val = current.value if current else None
-        print(f"  Huidige waarde : {current_val}")
+        print(f"  Huidige waarde : {current_val if current_val is not None else '—'}")
 
         new_val = input("  Nieuwe waarde  : ").strip()
         note = input("  Optionele notitie (Enter om over te slaan): ").strip()
 
         # Apply correction to extraction in-place
+        from core.models import FieldValue
         if ex.fields.get(canonical):
             ex.fields[canonical].value = new_val
+        else:
+            ex.fields[canonical] = FieldValue(value=new_val, confidence=1.0)
         corrections[canonical] = new_val
         print("  Veld bijgewerkt.")
 
