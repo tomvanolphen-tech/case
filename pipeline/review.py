@@ -319,5 +319,14 @@ def run_review(record: InvoiceRecord, proposed: ProposedBooking) -> ReviewOutcom
                 rules_saved=rules_saved,
                 duration_seconds=round(duration, 1),
             )
+        elif choice == "x":
+            print("\n  Geannuleerd. Geen actie ondernomen, niets opgeslagen.")
+            duration = time.time() - start
+            return ReviewOutcome(
+                action="cancel",
+                corrections={},
+                rules_saved=[],
+                duration_seconds=round(duration, 1),
+            )
         else:
-            print("  Ongeldige keuze. Kies a, fa, c, e of q.")
+            print("  Ongeldige keuze. Kies a, fa, c, e, q of x.")
