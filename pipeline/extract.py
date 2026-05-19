@@ -15,7 +15,8 @@ Regels:
 - Gok nooit. Een null-waarde is beter dan een fout antwoord.
 - Datums altijd als ISO 8601 (YYYY-MM-DD).
 - Bedragen altijd als float, geen valutasymbolen.
-- Confidence is een float tussen 0.0 en 1.0.\
+- Confidence is een float tussen 0.0 en 1.0.
+- Facturen kunnen in het Nederlands, Engels, Duits of Frans zijn. Normaliseer altijd naar Nederlandse conventies: ISO-datums (YYYY-MM-DD), punt als decimaalscheidingsteken in floats, EUR als valutacode tenzij anders vermeld.\
 """
 
 USER_TEMPLATE = """\
