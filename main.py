@@ -165,16 +165,114 @@ def run_pipeline(invoice_file: str, tenant_slug: str | None = None, auto_classif
     print(f"  Run log: {log_path}")
 
 
+def manage_rules_cli(tenant_slug: str) -> None:
+    """Interactive CLI for viewing, editing and deleting learned rules for a tenant."""
+    from core import tenant as tenant_io
+
+    available = tenant_io.list_tenants()
+    if tenant_slug not in available:
+        print(f"Fout: tenant '{tenant_slug}' bestaat niet. Beschikbare tenants: {', '.join(sorted(available))}")
+        sys.exit(1)
+
+    tenant_config = tenant_io.load_tenant_config(tenant_slug)
+
+    while True:
+        rules = tenant_io.list_rules(tenant_slug)
+        print()
+        print("=" * 56)
+        print(f"  GELEERDE REGELS  |  {tenant_config.name}")
+        print("=" * 56)
+
+        if not rules:
+            print("  (Geen regels gevonden)")
+        else:
+            for rule in rules:
+                scope_label = f"{rule.scope}: {rule.scope_value}" if rule.scope_value else rule.scope
+                print(f"\n  [{rule.number}] {rule.date}  {scope_label}")
+                preview = rule.rule_text if len(rule.rule_text) <= 70 else rule.rule_text[:67] + "..."
+                print(f"      \"{preview}\"")
+
+        print()
+        print("-" * 56)
+        print("  [d <nr>] Verwijder regel   [e <nr>] Bewerk regel")
+        print("  [v <nr>] Bekijk volledig   [q] Terug")
+        print("-" * 56)
+
+        choice = input("> ").strip().lower()
+
+        if choice == "q":
+            break
+
+        parts = choice.split(None, 1)
+        if len(parts) != 2 or not parts[1].isdigit():
+            print("  Ongeldige invoer. Voorbeelden: 'd 2', 'e 1', 'v 3'")
+            continue
+
+        cmd, num_str = parts[0], parts[1]
+        num = int(num_str)
+
+        if cmd == "v":
+            match = next((r for r in rules if r.number == num), None)
+            if not match:
+                print(f"  Regel {num} niet gevonden.")
+            else:
+                print(f"\n  Regel {match.number} — {match.date} (run: {match.run_id})")
+                print(f"  Scope: {match.scope}" + (f" — {match.scope_value}" if match.scope_value else ""))
+                print(f"  Tekst: {match.rule_text}")
+
+        elif cmd == "d":
+            match = next((r for r in rules if r.number == num), None)
+            if not match:
+                print(f"  Regel {num} niet gevonden.")
+                continue
+            print(f"\n  Te verwijderen: \"{match.rule_text[:70]}\"")
+            confirm = input("  Zeker weten? [j/n] > ").strip().lower()
+            if confirm == "j":
+                tenant_io.delete_rule(tenant_slug, num)
+                print(f"  Regel {num} verwijderd. Overige regels zijn hernummerd.")
+            else:
+                print("  Geannuleerd.")
+
+        elif cmd == "e":
+            match = next((r for r in rules if r.number == num), None)
+            if not match:
+                print(f"  Regel {num} niet gevonden.")
+                continue
+            print(f"\n  Huidige tekst: \"{match.rule_text}\"")
+            new_text = input("  Nieuwe tekst (Enter om te annuleren): ").strip()
+            if new_text:
+                tenant_io.update_rule(tenant_slug, num, new_text)
+                print(f"  Regel {num} bijgewerkt.")
+            else:
+                print("  Geannuleerd.")
+        else:
+            print("  Onbekend commando. Gebruik d, e of v.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Swoep.AI invoice processor")
-    parser.add_argument("invoice_file", help="Pad naar factuur")
+    parser.add_argument("invoice_file", nargs="?", default=None, help="Pad naar factuur")
     parser.add_argument("--tenant", "-t", default=None, help="Tenant slug (bijv. acme)")
     parser.add_argument("--auto-classify", action="store_true", help="Automatische tenant-detectie via LLM (niet aanbevolen)")
     parser.add_argument("--source-type", default=None, choices=["plain_text", "pdf", "html", "excel", "scan"],
                         help="Bestandstype overschrijven (default: afgeleid van extensie)")
     parser.add_argument("--env", default=None, choices=["test", "prod"],
                         help="Boekhoud-omgeving (default: $BOOKKEEPING_ENV of 'test')")
+    parser.add_argument("--manage-rules", action="store_true",
+                        help="Open het beheerscherm voor geleerde regels (vereist --tenant)")
     args = parser.parse_args()
+
+    if args.manage_rules:
+        if not args.tenant:
+            print("Fout: --manage-rules vereist --tenant <slug>.")
+            sys.exit(1)
+        manage_rules_cli(args.tenant)
+        return
+
+    if not args.invoice_file:
+        parser.print_help()
+        sys.exit(1)
+
     run_pipeline(args.invoice_file, args.tenant, args.auto_classify, args.source_type, args.env)
 
 
