@@ -67,6 +67,25 @@ python main.py samples/invoice_001.txt --auto-classify
 [x]  Annuleren (niets opslaan, niets boeken)
 ```
 
+### Velden corrigeren
+
+Bij `[c]` kun je velden opgeven in het **Nederlands of Engels**:
+
+| Nederlands | Engels | Omschrijving |
+|-----------|--------|--------------|
+| `leverancier` | `vendor` | Naam leverancier |
+| `factuurnummer` | `invoice_number` | Factuurnummer |
+| `factuurdatum` | `invoice_date` | Factuurdatum |
+| `vervaldatum` | `due_date` | Vervaldatum |
+| `totaal` | `amount_gross` | Totaal incl. BTW |
+| `btw_bedrag` | `amount_vat` | BTW-bedrag |
+| `subtotaal` | `amount_net` | Subtotaal excl. BTW |
+| `btw_percentage` | `vat_rate` | BTW-tarief (bijv. 0.21) |
+| `valuta` | `currency` | Valutacode (bijv. EUR) |
+| `omschrijving` | `description` | Omschrijving |
+| `rekening` | `suggested_acct` | Grootboekrekening |
+| `kostenplaats` | — | Kostenplaats |
+
 ---
 
 ## Multi-tenant
