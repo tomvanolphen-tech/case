@@ -96,6 +96,7 @@ class MockBookkeepingAdapter(BookkeepingAdapter):
                 }
                 for li in proposed.line_items
             ],
+            kostenplaats=proposed.kostenplaats,
             metadata={"env": self._env, "submitted_at": _now()},
         )
 
