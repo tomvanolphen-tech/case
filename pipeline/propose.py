@@ -66,5 +66,6 @@ def propose(result: ExtractionResult, validation: ValidationResult, tenant_confi
         amount_gross=gross,
         currency=_fv(result, "currency", tenant_config.default_currency),
         line_items=result.line_items,
+        kostenplaats=_fv(result, "kostenplaats"),
         concerns=all_concerns,
     )
