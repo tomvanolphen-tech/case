@@ -108,6 +108,15 @@ Genereer maximaal 5 concerns; prioriteer blocking boven warning boven info.
     "suggested_account_code": {{"value": null,   "confidence": 0.0}}
   }},
   "overall_confidence": 0.0,
+  "line_items": [
+    {{
+      "description": "Exact Online abonnement januari 2024",
+      "quantity": 1.0,
+      "unit_price": 99.00,
+      "amount": 99.00,
+      "vat_rate": 0.21
+    }}
+  ],
   "agent_concerns": [
     {{
       "field": "suggested_account_code",
