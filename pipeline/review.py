@@ -299,7 +299,18 @@ def run_review(record: InvoiceRecord, proposed: ProposedBooking, tenant_config=N
         elif choice == "c":
             new_rules = _correct_field(record, corrections)
             rules_saved.extend(new_rules)
-            # Recompute blocking after corrections
+            # Re-propose with corrected extraction so journal lines reflect corrections
+            if tenant_config and validation and record.extraction:
+                updated = repropose(record.extraction, validation, tenant_config)
+                proposed.journal_lines = updated.journal_lines
+                proposed.vendor = updated.vendor
+                proposed.invoice_number = updated.invoice_number
+                proposed.invoice_date = updated.invoice_date
+                proposed.amount_gross = updated.amount_gross
+                proposed.currency = updated.currency
+                proposed.line_items = updated.line_items
+                proposed.kostenplaats = updated.kostenplaats
+                record.proposed_booking = proposed
             has_blocking = any(c.severity == "blocking" for c in proposed.concerns)
             _print_booking(proposed)
         elif choice == "e":
