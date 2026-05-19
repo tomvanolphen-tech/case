@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$j = [Console]::In.ReadToEnd() | ConvertFrom-Json; $f = $j.tool_input.file_path; if ($f) { $leaf = Split-Path $f -Leaf; git -C 'C:\\Users\\thoma\\case' add $f; $staged = git -C 'C:\\Users\\thoma\\case' diff --cached --name-only; if ($staged) { git -C 'C:\\Users\\thoma\\case' commit -m \"Update $leaf\"; git -C 'C:\\Users\\thoma\\case' push } }",
+            "timeout": 30,
+            "statusMessage": "Committing and pushing to GitHub..."
+          }
+        ]
+      }
+    ]
+  }
+}
