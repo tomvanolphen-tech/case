@@ -22,9 +22,11 @@ from pipeline.review import run_review
 from pipeline.validate import validate
 
 
-def run_pipeline(invoice_file: str, tenant_slug: str | None = None, auto_classify: bool = False, source_type: str | None = None) -> None:
-    bookkeeping = MockBookkeepingAdapter()
+def run_pipeline(invoice_file: str, tenant_slug: str | None = None, auto_classify: bool = False, source_type: str | None = None, env: str | None = None) -> None:
+    target_env = env or config.BOOKKEEPING_ENV
+    bookkeeping = MockBookkeepingAdapter(target_env=target_env)
     mailbox = MockMailboxAdapter()
+    print(f"Omgeving: {target_env.upper()} ({config.bookkeeping_api_url(target_env)})")
 
     # 1. Ingest
     record = ingest(invoice_file, source_type=source_type)
