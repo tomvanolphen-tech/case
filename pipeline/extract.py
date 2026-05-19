@@ -47,6 +47,7 @@ USER_TEMPLATE = """\
 | currency               | string       | Valutacode (bijv. EUR)                                         |
 | description            | string       | Korte omschrijving van geleverde dienst of product             |
 | suggested_account_code | string|null  | Grootboekrekeningnummer o.b.v. klantregels, null als onbekend  |
+| kostenplaats           | string|null  | Kostenplaats of afdeling indien vermeld op de factuur, anders null |
 
 Naast de velden hierboven ook de individuele factuurregels als gestructureerde array:
 
