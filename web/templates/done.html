@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Swoep.AI — Klaar</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Swoep.AI</h1>
+    <span class="subtitle">Factuurverwerking</span>
+  </header>
+
+  <section class="card done-card">
+    <div class="done-icon {% if action == 'geboekt' %}done-success{% else %}done-escalated{% endif %}">
+      {% if action == 'geboekt' %}✓{% else %}↑{% endif %}
+    </div>
+    <h2>Factuur {{ action }}</h2>
+    <table class="done-table">
+      <tr><td>Leverancier</td><td><strong>{{ vendor }}</strong></td></tr>
+      <tr><td>Klant</td><td>{{ tenant }}</td></tr>
+      <tr><td>Run ID</td><td><code>{{ run_id }}</code></td></tr>
+      {% if booking_id %}
+      <tr><td>Booking ID</td><td><code>{{ booking_id }}</code></td></tr>
+      {% endif %}
+      {% if log_path %}
+      <tr><td>Logbestand</td><td><code>{{ log_path }}</code></td></tr>
+      {% endif %}
+    </table>
+  </section>
+
+  <div class="back-link">
+    <a href="/">&larr; Terug naar inbox</a>
+  </div>
+</div>
+</body>
+</html>
