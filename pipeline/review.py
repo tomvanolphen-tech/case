@@ -55,7 +55,9 @@ def _print_header(record: InvoiceRecord, proposed: ProposedBooking) -> None:
     print()
     print("=" * 56)
     print(f"  FACTUURVERWERKING  |  Run: {record.run_id}")
-    print(f"  Klant: {proposed.vendor[:20]:<20} |  Bestand: {record.source_file}")
+    print(f"  Administratieklant : {record.tenant_slug}")
+    print(f"  Leverancier        : {proposed.vendor[:30]}")
+    print(f"  Bestand            : {record.source_file}")
     print("=" * 56)
 
 
