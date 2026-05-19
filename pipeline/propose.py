@@ -1,4 +1,4 @@
-from core.models import ExtractionResult, JournalLine, ProposedBooking, TenantConfig
+from core.models import Concern, ExtractionResult, JournalLine, ProposedBooking, TenantConfig, ValidationResult
 
 
 def _resolve_account_code(result: ExtractionResult, tenant_config: TenantConfig) -> str:
@@ -22,7 +22,7 @@ def _fv(result: ExtractionResult, field_name: str, default=None):
     return fv.value if fv and fv.value is not None else default
 
 
-def propose(result: ExtractionResult, tenant_config: TenantConfig) -> ProposedBooking:
+def propose(result: ExtractionResult, validation: ValidationResult, tenant_config: TenantConfig) -> ProposedBooking:
     mapping = tenant_config.account_mapping
     expense_account = _resolve_account_code(result, tenant_config)
     vat_account = str(mapping.get("vat_in", "1500"))
@@ -55,6 +55,9 @@ def propose(result: ExtractionResult, tenant_config: TenantConfig) -> ProposedBo
         JournalLine(side="C", account=ap_account, amount=gross, description=f"Crediteuren {vendor}"),
     ]
 
+    # Merge agent concerns + validator concerns
+    all_concerns: list[Concern] = result.agent_concerns + validation.concerns
+
     return ProposedBooking(
         journal_lines=journal_lines,
         vendor=vendor,
@@ -62,4 +65,5 @@ def propose(result: ExtractionResult, tenant_config: TenantConfig) -> ProposedBo
         invoice_date=_fv(result, "invoice_date", ""),
         amount_gross=gross,
         currency=_fv(result, "currency", tenant_config.default_currency),
+        concerns=all_concerns,
     )
