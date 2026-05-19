@@ -1,0 +1,25 @@
+FACTUUR
+
+Telecom Partners B.V.
+Stationsplein 12
+2500 GH Den Haag
+BTW: NL556677889B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : TP-2024-00156
+Factuurdatum  : 2024-02-12
+
+Omschrijving                          Bedrag
+----------------------------------------------
+Telefonie abonnement februari          € 89,00
+Internationale gesprekken              € 23,40
+Dataverbruik overschrijding            € 15,00
+BTW 21%                                € 26,75
+----------------------------------------------
+Totaal te betalen                     € 154,15
+
+IBAN: NL91ABNA0417164300
