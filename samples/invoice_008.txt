@@ -1,0 +1,25 @@
+FACTUUR
+
+Freelance Ontwikkelaar
+J. de Vries
+Keizersgracht 123
+1015 CJ Amsterdam
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : JDV-2024-007
+Factuurdatum  : 2024-02-15
+
+Omschrijving                          Uren    Tarief     Totaal
+-----------------------------------------------------------------
+Ontwikkeling nieuwe module                8   € 95,00   € 760,00
+-----------------------------------------------------------------
+Subtotaal                                                € 760,00
+BTW 0% (verlegd)                                         €   0,00
+Totaal te betalen                                        € 760,00
+
+BTW verlegd o.g.v. art. 12 Wet OB.
+Geen BTW-nummer vermeld door leverancier.
