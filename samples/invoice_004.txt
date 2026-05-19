@@ -1,0 +1,28 @@
+Rechnung
+
+Microsoft Ireland Operations Limited
+One Microsoft Place
+South County Business Park
+Leopardstown, Dublin 18
+VAT: IE8256796U
+
+An:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Invoice Number : MS-2024-00341
+Invoice Date   : 2024-02-01
+Due Date       : 2024-03-03
+
+Description                           Amount
+----------------------------------------------
+Microsoft 365 Business Standard       EUR 12.50
+Microsoft Azure (January usage)       EUR 87.30
+----------------------------------------------
+Subtotal excl. VAT                    EUR 99.80
+VAT 21%                               EUR 20.96
+----------------------------------------------
+Total due                             EUR 120.76
+
+Please transfer to IBAN: GB29NWBK60161331926819
