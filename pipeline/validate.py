@@ -1,6 +1,7 @@
 from datetime import date
 
 from core.models import Concern, ExtractionResult, InvoiceRecord, TenantConfig, ValidationResult
+from pipeline.duplicate_check import check_duplicate
 
 
 def validate(
