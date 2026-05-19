@@ -146,9 +146,9 @@ def run_pipeline(invoice_file: str, tenant_slug: str | None = None, auto_classif
         # Operator chose [x]: no booking, no log saved
         return
     elif outcome.action in ("approve", "force_approve"):
-        booking_id = book(proposed, bookkeeping)
+        booking_id, booking_audit = book(proposed, bookkeeping)
         record.status = "booked"
-        log_step(run_log, "book_or_escalate", {"status": "booked", "booking_id": booking_id})
+        log_step(run_log, "book_or_escalate", {"status": "booked", "booking_id": booking_id, **booking_audit})
         print(f"\n  Booking: {booking_id}")
     elif outcome.action == "escalate":
         reason = record.escalation_reason or "Geëscaleerd door operator"
