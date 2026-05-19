@@ -1,0 +1,17 @@
+name: "Betaworks B.V."
+vat_number: "NL998877665B01"
+default_currency: "EUR"
+required_fields:
+  - vendor
+  - amount_gross
+  - invoice_date
+  - invoice_number
+confidence_threshold: 0.80
+account_mapping:
+  default_expense: "4000"
+  vat_in: "1500"
+  accounts_payable: "1600"
+  vendors:
+    "Amazon Web Services": "4600"
+    "GitHub": "4610"
+    "Slack": "4620"
