@@ -155,23 +155,6 @@ class MockBookkeepingAdapter(BookkeepingAdapter):
             timestamp=_now(),
         )
 
-    def _save_audit(self, request: BookingRequest, response: BookingResponse) -> None:
-        config.RUNS_DIR.mkdir(parents=True, exist_ok=True)
-        audit = {
-            "request": {
-                "method": "POST",
-                "url": f"{self._base_url}/invoices",
-                "body": request.to_dict(),
-            },
-            "response": {
-                "status_code": response.status_code,
-                "booking_id": response.booking_id,
-                "message": response.message,
-                "timestamp": response.timestamp,
-            },
-        }
-        path = config.RUNS_DIR / f"{response.booking_id}.json"
-        path.write_text(json.dumps(audit, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 class BookingError(Exception):
