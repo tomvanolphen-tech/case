@@ -157,7 +157,7 @@ def _correct_field(record: InvoiceRecord, corrections: dict) -> list[str]:
     rules_saved = []
 
     while True:
-        field_input = input("Welk veld corrigeren? (bijv. suggested_acct, vendor, amount_gross) > ").strip()
+        field_input = input("Welk veld corrigeren? (bijv. rekening, leverancier, totaal, btw_bedrag) > ").strip()
         canonical = _FIELD_ALIASES.get(field_input)
         if not canonical:
             print(f"  Onbekend veld '{field_input}'. Beschikbare velden: {', '.join(_FIELD_ALIASES.keys())}")
