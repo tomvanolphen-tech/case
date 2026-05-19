@@ -4,6 +4,20 @@ from core import tenant as tenant_io
 from core.models import Concern, ExtractionResult, InvoiceRecord, ProposedBooking, ReviewOutcome
 
 _FIELD_ALIASES = {
+    # Nederlands
+    "leverancier": "vendor",
+    "factuurnummer": "invoice_number",
+    "factuurdatum": "invoice_date",
+    "vervaldatum": "due_date",
+    "totaal": "amount_gross",
+    "btw_bedrag": "amount_vat",
+    "subtotaal": "amount_net",
+    "btw_percentage": "vat_rate",
+    "valuta": "currency",
+    "omschrijving": "description",
+    "rekening": "suggested_account_code",
+    "kostenplaats": "kostenplaats",
+    # Engels (backwards compat)
     "vendor": "vendor",
     "invoice_number": "invoice_number",
     "invoice_date": "invoice_date",
