@@ -78,9 +78,36 @@ def _print_concerns(concerns: list[Concern]) -> None:
 
 
 def _print_booking(proposed: ProposedBooking) -> None:
-    print("\nVOORGESTELD BOEKSTUK")
+    # Invoice metadata
+    print("\nFACTUURGEGEVENS")
+    print(f"  Leverancier     : {proposed.vendor}")
+    print(f"  Factuurnummer   : {proposed.invoice_number or '—'}")
+    print(f"  Factuurdatum    : {proposed.invoice_date or '—'}")
+    print(f"  Valuta          : {proposed.currency}")
+    if proposed.kostenplaats:
+        print(f"  Kostenplaats    : {proposed.kostenplaats}")
+
+    # Invoice line items
+    if proposed.line_items:
+        print("\nFACTUUUREGELS")
+        print(f"  {'Omschrijving':<32} {'Aantal':>6}  {'Stukprijs':>10}  {'Bedrag':>10}  {'BTW':>5}  Rekening")
+        print("  " + "-" * 78)
+        for li in proposed.line_items:
+            qty = f"{li.quantity:.2f}" if li.quantity is not None else "—"
+            price = f"€ {li.unit_price:>8.2f}" if li.unit_price is not None else "—"
+            vat = f"{int(li.vat_rate * 100)}%" if li.vat_rate is not None else "—"
+            # Find matching journal line account for this item
+            expense_line = next((l for l in proposed.journal_lines if l.side == "D" and "BTW" not in l.description), None)
+            account = expense_line.account if expense_line else "—"
+            print(f"  {li.description[:32]:<32} {qty:>6}  {price:>10}  € {li.amount:>8.2f}  {vat:>5}  {account}")
+
+    # Journal entry
+    print("\nJOURNAALPOST")
+    print(f"  {'D/C':<3}  {'Rekening':<8}  {'Omschrijving':<28}  {'Bedrag':>10}")
+    print("  " + "-" * 56)
     for line in proposed.journal_lines:
-        print(f"  {line.side}  {line.account}  {line.description:<28} € {line.amount:>8.2f}")
+        print(f"  {line.side:<3}  {line.account:<8}  {line.description:<28}  € {line.amount:>8.2f}")
+    print(f"  {'':3}  {'':8}  {'Totaal incl. BTW':<28}  € {proposed.amount_gross:>8.2f}")
 
 
 def _print_menu(has_blocking: bool) -> None:
