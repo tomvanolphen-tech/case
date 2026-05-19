@@ -1,0 +1,16 @@
+name: "ACME Corp"
+vat_number: "NL123456789B01"
+default_currency: "EUR"
+required_fields:
+  - vendor
+  - amount_gross
+  - invoice_date
+  - invoice_number
+confidence_threshold: 0.80
+account_mapping:
+  default_expense: "4000"
+  vat_in: "1500"
+  accounts_payable: "1600"
+  vendors:
+    "KPN": "4300"
+    "Microsoft": "4200"
