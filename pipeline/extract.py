@@ -107,7 +107,8 @@ Genereer maximaal 5 concerns; prioriteer blocking boven warning boven info.
     "amount_net":             {{"value": null,   "confidence": 0.0}},
     "currency":               {{"value": "EUR",  "confidence": 0.0}},
     "description":            {{"value": "...",  "confidence": 0.0}},
-    "suggested_account_code": {{"value": null,   "confidence": 0.0}}
+    "suggested_account_code": {{"value": null,   "confidence": 0.0}},
+    "kostenplaats":           {{"value": null,   "confidence": 0.0}}
   }},
   "overall_confidence": 0.0,
   "line_items": [
