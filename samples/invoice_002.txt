@@ -1,0 +1,22 @@
+PostNL B.V.
+Antwoordnummer 6868
+2500 VB Den Haag
+BTW: NL003485593B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : PNL-2024-00142
+Factuurdatum  : 2024-01-14
+
+Omschrijving                          Aantal    Prijs      Totaal
+-----------------------------------------------------------------
+Zakelijk pakket verzending                 4   € 10,00    € 40,00
+BTW 21%                                                   €  8,40
+-----------------------------------------------------------------
+Totaal incl. BTW                                          € 48,40
+
+Betaling via automatische incasso op 2024-02-01.
+IBAN: NL20INGB0001234567
