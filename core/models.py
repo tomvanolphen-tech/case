@@ -10,10 +10,19 @@ class FieldValue:
 
 
 @dataclass
+class Concern:
+    field: str | None                    # welk veld, of None voor algemeen
+    severity: str                        # "info" | "warning" | "blocking"
+    reason: str
+    suggested_next_steps: list[str] = field(default_factory=list)
+    source: str = "agent"                # "agent" | "validator"
+
+
+@dataclass
 class ExtractionResult:
     fields: dict[str, FieldValue]
     overall_confidence: float
-    uncertainty_notes: str
+    agent_concerns: list[Concern] = field(default_factory=list)
     system_prompt: str = ""
     user_prompt: str = ""
     llm_response_raw: str = ""
@@ -31,21 +40,14 @@ class TenantConfig:
 
 
 @dataclass
-class ValidationIssue:
-    field: str
-    reason: str
-    severity: str  # "warning" | "error"
-
-
-@dataclass
 class ValidationResult:
-    ok: bool
-    issues: list[ValidationIssue] = field(default_factory=list)
+    ok: bool                             # False als er blocking concerns zijn
+    concerns: list[Concern] = field(default_factory=list)
 
 
 @dataclass
 class JournalLine:
-    side: str   # "D" | "C"
+    side: str                            # "D" | "C"
     account: str
     amount: float
     description: str
@@ -59,13 +61,16 @@ class ProposedBooking:
     invoice_date: str
     amount_gross: float
     currency: str
+    concerns: list[Concern] = field(default_factory=list)
 
 
 @dataclass
 class ReviewOutcome:
-    action: str                            # "approve" | "escalate" | "quit"
+    action: str                          # "approve" | "force_approve" | "escalate" | "quit"
     corrections: dict[str, Any] = field(default_factory=dict)
     rules_saved: list[str] = field(default_factory=list)
+    force_approve: bool = False
+    operator_confirmation: str = ""
     duration_seconds: float = 0.0
 
 
@@ -75,7 +80,8 @@ class InvoiceRecord:
     source_file: str
     raw_text: str
     tenant_slug: str | None
-    status: str                            # new|extracted|validated|proposed|approved|booked|escalated
+    status: str                          # new|extracted|validated|proposed|approved|booked|escalated
+    source_type: str = "plain_text"
     extraction: ExtractionResult | None = None
     validation: ValidationResult | None = None
     proposed_booking: ProposedBooking | None = None
@@ -92,3 +98,26 @@ class RunLog:
     created_at: str
     final_status: str
     steps: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class NormalizedInput:
+    text: str
+    source_file: str
+    source_type: str                     # "plain_text" | "pdf" | "html" | "excel" | "scan"
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class RuleProposal:
+    rule_text: str
+    scope: str                           # "vendor" | "tenant"
+    scope_value: str | None              # bijv. "PostNL B.V." voor scope=vendor
+    generalization_warning: str | None
+
+
+@dataclass
+class ConflictCheckResult:
+    has_conflict: bool
+    conflicting_rules: list[str] = field(default_factory=list)
+    explanation: str = ""
