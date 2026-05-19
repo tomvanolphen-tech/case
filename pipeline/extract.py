@@ -2,7 +2,7 @@ import json
 
 import config
 from core.llm import call_llm, extract_json
-from core.models import Concern, ExtractionResult, FieldValue, InvoiceRecord, TenantConfig
+from core.models import Concern, ExtractionResult, FieldValue, InvoiceRecord, LineItem, TenantConfig
 from core import tenant as tenant_io
 
 SYSTEM_TEMPLATE = """\
