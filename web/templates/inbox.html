@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Swoep.AI — Inbox</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Swoep.AI</h1>
+      <span class="subtitle">Factuurverwerking</span>
+    </header>
+
+    <div class="inbox-header">
+      <h2>Inbox <span class="badge">{{ emails|length }}</span></h2>
+    </div>
+
+    {% if emails %}
+    <table class="inbox-table">
+      <thead>
+        <tr>
+          <th>Van</th>
+          <th>Onderwerp</th>
+          <th>Bijlage</th>
+          <th>Ontvangen</th>
+          <th>Verwerken</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for email in emails %}
+        <tr>
+          <td class="sender">{{ email.sender }}</td>
+          <td>{{ email.subject }}</td>
+          <td class="filename">{{ email.filename }}</td>
+          <td class="date">{{ email.date }}</td>
+          <td>
+            <form method="POST" action="/process" class="process-form">
+              <input type="hidden" name="filename" value="{{ email.filename }}">
+              <select name="tenant" class="tenant-select">
+                {% for t in tenants %}
+                <option value="{{ t }}" {% if t == email.default_tenant %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-primary">Verwerken</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty">Geen facturen in de inbox.</p>
+    {% endif %}
+  </div>
+</body>
+</html>
