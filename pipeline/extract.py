@@ -2,7 +2,7 @@ import json
 
 import config
 from core.llm import call_llm, extract_json
-from core.models import ExtractionResult, FieldValue, InvoiceRecord, TenantConfig
+from core.models import Concern, ExtractionResult, FieldValue, InvoiceRecord, TenantConfig
 from core import tenant as tenant_io
 
 SYSTEM_TEMPLATE = """\
@@ -49,6 +49,28 @@ USER_TEMPLATE = """\
 
 ---
 
+## Agent-concerns
+
+Meld actief wanneer je twijfelt of wanneer iets opvallend is.
+Genereer een concern in deze gevallen:
+- Een verplicht veld is null of ontbreekt geheel op de factuur
+- Een bedrag is ongebruikelijk hoog of laag voor dit type leverancier
+- De leveranciersnaam is ambigu of gedeeltelijk leesbaar
+- Er zijn aanwijzingen van een duplicaat (zelfde factuurnummer als een eerder voorbeeld)
+- Je hebt een account_code gesuggereerd maar twijfelt aan de categorisatie
+- De factuur bevat tegenstrijdige informatie (bijv. BTW-bedrag klopt niet met tarief × net)
+
+Severity:
+- "info"     : opmerking, geen actie vereist, approve is mogelijk
+- "warning"  : operator moet controleren, approve is mogelijk
+- "blocking" : approve is niet verantwoord zonder menselijke verificatie
+
+BELANGRIJK: een concern vervangt nooit een null-waarde.
+Als je een veld niet kunt bepalen: zet value op null én genereer een blocking concern.
+Genereer maximaal 5 concerns; prioriteer blocking boven warning boven info.
+
+---
+
 ## Factuurtext
 
 ```
@@ -74,7 +96,14 @@ USER_TEMPLATE = """\
     "suggested_account_code": {{"value": null,   "confidence": 0.0}}
   }},
   "overall_confidence": 0.0,
-  "uncertainty_notes": "Korte toelichting bij eventuele twijfels of ontbrekende informatie."
+  "agent_concerns": [
+    {{
+      "field": "suggested_account_code",
+      "severity": "warning",
+      "reason": "Geen expliciete kostensoort vermeld; heb default 4000 gekozen",
+      "suggested_next_steps": ["Controleer of leverancier onder verzendkosten valt (4350)"]
+    }}
+  ]
 }}\
 """
 
@@ -94,6 +123,19 @@ def _format_examples(examples: list[dict]) -> str:
             f"Operatornoot: {note}"
         )
     return "\n\n".join(parts)
+
+
+def _parse_concerns(raw_concerns: list[dict], source: str = "agent") -> list[Concern]:
+    concerns = []
+    for c in raw_concerns:
+        concerns.append(Concern(
+            field=c.get("field"),
+            severity=c.get("severity", "info"),
+            reason=c.get("reason", ""),
+            suggested_next_steps=c.get("suggested_next_steps", []),
+            source=source,
+        ))
+    return concerns
 
 
 def build_extract_prompt(
@@ -127,10 +169,20 @@ def extract(record: InvoiceRecord, tenant_config: TenantConfig) -> ExtractionRes
             confidence=float(field_data.get("confidence", 0.0)),
         )
 
+    # Support legacy uncertainty_notes: convert to a single info concern
+    agent_concerns = _parse_concerns(parsed.get("agent_concerns", []))
+    if not agent_concerns and parsed.get("uncertainty_notes"):
+        agent_concerns = [Concern(
+            field=None,
+            severity="info",
+            reason=parsed["uncertainty_notes"],
+            source="agent",
+        )]
+
     return ExtractionResult(
         fields=fields,
         overall_confidence=float(parsed.get("overall_confidence", 0.0)),
-        uncertainty_notes=parsed.get("uncertainty_notes", ""),
+        agent_concerns=agent_concerns,
         system_prompt=system,
         user_prompt=user,
         llm_response_raw=raw_response,
