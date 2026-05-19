@@ -81,5 +81,10 @@ def validate(
                 source="validator",
             ))
 
+    # Duplicate invoice check
+    duplicate_concern = check_duplicate(result, record.run_id)
+    if duplicate_concern:
+        concerns.append(duplicate_concern)
+
     has_blocking = any(c.severity == "blocking" for c in concerns)
     return ValidationResult(ok=not has_blocking, concerns=concerns)
