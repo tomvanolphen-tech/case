@@ -1,0 +1,23 @@
+FACTUUR
+
+Schoonmaakbedrijf De Glans V.O.F.
+Industrieweg 45
+1234 AB Amsterdam
+BTW: NL987654321B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurdatum  : 2024-02-10
+
+Omschrijving                          Bedrag
+----------------------------------------------
+Maandelijkse schoonmaak februari       € 275,00
+BTW 21%                                € 57,75
+----------------------------------------------
+Totaal te betalen                      € 332,75
+
+Betaling binnen 14 dagen.
+Rekeningnummer: NL55RABO0123456789
