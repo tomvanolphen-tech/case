@@ -9,6 +9,7 @@ Usage:
 import argparse
 import sys
 
+import config
 from adapters.bookkeeping import MockBookkeepingAdapter
 from adapters.mailbox import MockMailboxAdapter
 from core import tenant as tenant_io
