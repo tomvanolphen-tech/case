@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Swoep.AI — Review</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Swoep.AI</h1>
+    <span class="subtitle">Factuurverwerking</span>
+  </header>
+
+  <div class="run-meta">
+    <span>Run: <code>{{ run_id }}</code></span>
+    <span>Klant: <strong>{{ record.tenant_slug }}</strong></span>
+    <span>Bestand: <code>{{ record.source_file.split('\\')[-1].split('/')[-1] }}</code></span>
+    <span>Confidence: <strong>{{ overall_confidence }}</strong></span>
+  </div>
+
+  <!-- FACTUURGEGEVENS -->
+  <section class="card">
+    <h2>Factuurgegevens</h2>
+    <table class="fields-table">
+      <thead>
+        <tr><th>Veld</th><th>Waarde</th><th>Confidence</th></tr>
+      </thead>
+      <tbody>
+        {% for f in fields %}
+        <tr>
+          <td class="field-label">{{ f.label }}</td>
+          <td class="field-value {% if f.value == '—' %}missing{% endif %}">{{ f.value }}</td>
+          <td>
+            {% if f.confidence %}
+            <span class="confidence {% if f.low %}conf-low{% else %}conf-ok{% endif %}">
+              {{ f.confidence }}
+            </span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CONCERNS -->
+  {% if concerns %}
+  <section class="card">
+    <h2>Bevindingen</h2>
+    {% for c in concerns %}
+    <div class="concern concern-{{ c.severity }}">
+      <span class="concern-badge">{{ c.severity.upper() }}</span>
+      {% if c.field %}<span class="concern-field">[{{ c.field }}]</span>{% endif %}
+      <span class="concern-reason">{{ c.reason }}</span>
+      {% if c.suggested_next_steps %}
+      <ul class="concern-steps">
+        {% for step in c.suggested_next_steps %}
+        <li>→ {{ step }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <!-- JOURNAALPOST -->
+  <section class="card">
+    <h2>Journaalpost</h2>
+    <table class="journal-table">
+      <thead>
+        <tr><th>D/C</th><th>Rekening</th><th>Omschrijving</th><th class="amount">Bedrag</th></tr>
+      </thead>
+      <tbody>
+        {% for line in proposed.journal_lines %}
+        <tr class="{% if line.side == 'D' %}debit{% else %}credit{% endif %}">
+          <td><strong>{{ line.side }}</strong></td>
+          <td>{{ line.account }}</td>
+          <td>{{ line.description }}</td>
+          <td class="amount">€ {{ "%.2f"|format(line.amount) }}</td>
+        </tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="3">Totaal incl. BTW</td>
+          <td class="amount">€ {{ "%.2f"|format(proposed.amount_gross) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ACTIES -->
+  <section class="card actions-card">
+    <h2>Actie</h2>
+
+    <div class="action-buttons">
+
+      <!-- Goedkeuren -->
+      <form method="POST" action="/approve/{{ run_id }}">
+        {% if has_blocking %}
+        <button type="button" class="btn btn-disabled" disabled title="Geblokkeerd door blocking concerns">
+          Goedkeuren (geblokkeerd)
+        </button>
+        {% else %}
+        <button type="submit" class="btn btn-success"
+          onclick="return confirm('Factuur goedkeuren en boeken?')">
+          Goedkeuren &amp; boeken
+        </button>
+        {% endif %}
+      </form>
+
+      <!-- Corrigeren -->
+      <button type="button" class="btn btn-warning" onclick="toggleCorrectForm()">
+        Veld corrigeren
+      </button>
+
+      <!-- Escaleren -->
+      <button type="button" class="btn btn-secondary" onclick="toggleEscalateForm()">
+        Escaleren
+      </button>
+
+      <!-- Annuleren -->
+      <a href="/cancel/{{ run_id }}" class="btn btn-danger"
+        onclick="return confirm('Annuleren zonder opslaan?')">
+        Annuleren
+      </a>
+    </div>
+
+    <!-- Correctieformulier (verborgen) -->
+    <div id="correct-form" class="subform hidden">
+      <h3>Veld corrigeren</h3>
+      <form method="POST" action="/correct/{{ run_id }}">
+        <label>Veld:
+          <select name="field">
+            <option value="vendor">Leverancier</option>
+            <option value="invoice_number">Factuurnummer</option>
+            <option value="invoice_date">Factuurdatum</option>
+            <option value="due_date">Vervaldatum</option>
+            <option value="amount_gross">Totaal</option>
+            <option value="amount_vat">BTW-bedrag</option>
+            <option value="amount_net">Subtotaal</option>
+            <option value="vat_rate">BTW-percentage</option>
+            <option value="currency">Valuta</option>
+            <option value="description">Omschrijving</option>
+            <option value="suggested_account_code">Rekening</option>
+            <option value="kostenplaats">Kostenplaats</option>
+          </select>
+        </label>
+        <label>Nieuwe waarde:
+          <input type="text" name="value" required placeholder="Nieuwe waarde...">
+        </label>
+        <button type="submit" class="btn btn-warning">Toepassen</button>
+        <button type="button" class="btn btn-secondary" onclick="toggleCorrectForm()">Annuleren</button>
+      </form>
+    </div>
+
+    <!-- Escalatieformulier (verborgen) -->
+    <div id="escalate-form" class="subform hidden">
+      <h3>Escaleren</h3>
+      <form method="POST" action="/escalate/{{ run_id }}">
+        <label>Reden:
+          <input type="text" name="reason" required placeholder="Waarom escaleert u deze factuur?">
+        </label>
+        <button type="submit" class="btn btn-secondary">Escaleren</button>
+        <button type="button" class="btn btn-secondary" onclick="toggleEscalateForm()">Annuleren</button>
+      </form>
+    </div>
+  </section>
+
+  <div class="back-link">
+    <a href="/">&larr; Terug naar inbox</a>
+  </div>
+</div>
+
+<script>
+  function toggleCorrectForm() {
+    document.getElementById('correct-form').classList.toggle('hidden');
+    document.getElementById('escalate-form').classList.add('hidden');
+  }
+  function toggleEscalateForm() {
+    document.getElementById('escalate-form').classList.toggle('hidden');
+    document.getElementById('correct-form').classList.add('hidden');
+  }
+</script>
+</body>
+</html>
