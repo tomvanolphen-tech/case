@@ -47,6 +47,18 @@ USER_TEMPLATE = """\
 | description            | string       | Korte omschrijving van geleverde dienst of product             |
 | suggested_account_code | string|null  | Grootboekrekeningnummer o.b.v. klantregels, null als onbekend  |
 
+Naast de velden hierboven ook de individuele factuurregels als gestructureerde array:
+
+| Veld in line_items | Type        | Omschrijving                                         |
+|--------------------|-------------|------------------------------------------------------|
+| description        | string      | Omschrijving van de regel                            |
+| quantity           | float|null  | Aantal, null als niet vermeld                        |
+| unit_price         | float|null  | Stukprijs excl. BTW, null als niet vermeld           |
+| amount             | float       | Regelbedrag excl. BTW                                |
+| vat_rate           | float|null  | BTW-tarief als decimaal (0.21), null als onbekend    |
+
+Als de factuur geen gespecificeerde regels heeft maar alleen een totaalbedrag: maak één regel met de hoofdomschrijving.
+
 ---
 
 ## Agent-concerns
