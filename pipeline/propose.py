@@ -28,7 +28,7 @@ def _fv(result: ExtractionResult, field_name: str, default=None):
 
 def propose(result: ExtractionResult, validation: ValidationResult, tenant_config: TenantConfig) -> ProposedBooking:
     mapping = tenant_config.account_mapping
-    expense_account = _resolve_account_code(result, tenant_config)
+    expense_account, account_reason = _resolve_account_code(result, tenant_config)
     vat_account = str(mapping.get("vat_in", "1500"))
     ap_account = str(mapping.get("accounts_payable", "1600"))
 
@@ -38,7 +38,19 @@ def propose(result: ExtractionResult, validation: ValidationResult, tenant_confi
     vendor = _fv(result, "vendor", "Onbekend")
     description = _fv(result, "description", "")
 
-    # Derive net/vat if missing
+    # Merge agent concerns + validator concerns
+    all_concerns: list[Concern] = list(result.agent_concerns) + list(validation.concerns)
+
+    # Explain account selection to operator
+    all_concerns.append(Concern(
+        field="suggested_account_code",
+        severity="info",
+        reason=f"Rekeningkeuze: {expense_account} — {account_reason}",
+        source="validator",
+    ))
+
+    # Derive net/vat if missing — never guess silently
+    vat_unknown = False
     if net is not None and vat is not None:
         net = float(net)
         vat = float(vat)
@@ -49,18 +61,34 @@ def propose(result: ExtractionResult, validation: ValidationResult, tenant_confi
         vat = float(vat)
         net = round(gross - vat, 2)
     else:
-        # Assume 21% VAT as last resort
-        net = round(gross / 1.21, 2)
-        vat = round(gross - net, 2)
+        vat_unknown = True
+        all_concerns.append(Concern(
+            field="amount_net",
+            severity="blocking",
+            reason=(
+                "BTW-splitsing kan niet worden vastgesteld: zowel subtotaal als BTW-bedrag ontbreken. "
+                "Corrigeer 'subtotaal' of 'btw_bedrag' via [c] voordat je akkoord gaat."
+            ),
+            suggested_next_steps=[
+                "Zoek het subtotaal op de originele factuur op",
+                "Corrigeer via [c] → subtotaal of btw_bedrag",
+            ],
+            source="validator",
+        ))
 
-    journal_lines = [
-        JournalLine(side="D", account=expense_account, amount=net, description=description or "Kosten"),
-        JournalLine(side="D", account=vat_account, amount=vat, description="BTW te vorderen"),
-        JournalLine(side="C", account=ap_account, amount=gross, description=f"Crediteuren {vendor}"),
-    ]
-
-    # Merge agent concerns + validator concerns
-    all_concerns: list[Concern] = result.agent_concerns + validation.concerns
+    if vat_unknown:
+        # Single debit line for the full gross — no VAT split until operator corrects
+        journal_lines = [
+            JournalLine(side="D", account=expense_account, amount=gross,
+                        description=(description or "Kosten") + " (incl. BTW, splitsing onbekend)"),
+            JournalLine(side="C", account=ap_account, amount=gross, description=f"Crediteuren {vendor}"),
+        ]
+    else:
+        journal_lines = [
+            JournalLine(side="D", account=expense_account, amount=net, description=description or "Kosten"),
+            JournalLine(side="D", account=vat_account, amount=vat, description="BTW te vorderen"),
+            JournalLine(side="C", account=ap_account, amount=gross, description=f"Crediteuren {vendor}"),
+        ]
 
     return ProposedBooking(
         journal_lines=journal_lines,
