@@ -79,6 +79,16 @@ def run_pipeline(invoice_file: str, tenant_slug: str | None = None, auto_classif
             for k, v in extraction.fields.items()
         },
         "overall_confidence": extraction.overall_confidence,
+        "line_items": [
+            {
+                "description": li.description,
+                "quantity": li.quantity,
+                "unit_price": li.unit_price,
+                "amount": li.amount,
+                "vat_rate": li.vat_rate,
+            }
+            for li in extraction.line_items
+        ],
         "agent_concerns": [
             {
                 "field": c.field,
