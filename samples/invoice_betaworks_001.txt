@@ -1,0 +1,24 @@
+Amazon Web Services EMEA SARL
+38 Avenue John F. Kennedy
+L-1855 Luxembourg
+VAT: LU26375245
+
+To:
+Betaworks B.V.
+Herengracht 500
+1017 CB Amsterdam
+
+Invoice Number : AWS-EU-2024-00442
+Invoice Date   : 2024-02-01
+Due Date       : 2024-03-01
+
+Description                           Amount
+----------------------------------------------
+Amazon EC2 (January 2024)             EUR 312.40
+Amazon S3 Storage (January 2024)      EUR  48.20
+AWS Support Plan                      EUR  25.00
+----------------------------------------------
+Subtotal excl. VAT                    EUR 385.60
+VAT 21%                               EUR  80.98
+----------------------------------------------
+Total due                             EUR 466.58
