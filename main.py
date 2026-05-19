@@ -168,8 +168,10 @@ def main() -> None:
     parser.add_argument("--auto-classify", action="store_true", help="Automatische tenant-detectie via LLM (niet aanbevolen)")
     parser.add_argument("--source-type", default=None, choices=["plain_text", "pdf", "html", "excel", "scan"],
                         help="Bestandstype overschrijven (default: afgeleid van extensie)")
+    parser.add_argument("--env", default=None, choices=["test", "prod"],
+                        help="Boekhoud-omgeving (default: $BOOKKEEPING_ENV of 'test')")
     args = parser.parse_args()
-    run_pipeline(args.invoice_file, args.tenant, args.auto_classify, args.source_type)
+    run_pipeline(args.invoice_file, args.tenant, args.auto_classify, args.source_type, args.env)
 
 
 if __name__ == "__main__":
