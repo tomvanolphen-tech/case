@@ -1,6 +1,6 @@
 # Assessment — Swoep.AI Invoice Processing Agent
 
-**Repo:** https://github.com/tomvanolphen-tech/case
+**Repo:** [https://github.com/tomvanolphen-tech/case](https://github.com/tomvanolphen-tech/case)
 **Tijdsbesteding:** ~4 uur
 **Datum:** 2026-05-19
 
@@ -16,16 +16,18 @@ Elke factuur doorloopt acht stappen, sequentieel, één factuur per run:
 ingest → classify_tenant → extract → validate → propose → review → book_or_escalate → log
 ```
 
-| Stap | Verantwoordelijkheid | Deterministisch? |
-|------|----------------------|------------------|
-| `ingest` | Lees bestand, normaliseer naar tekst, ken `run_id` toe | Ja |
-| `classify_tenant` | Bepaal voor welke klant de factuur is (CLI-arg of LLM-fallback) | Ja (CLI) / Nee (auto) |
-| `extract` | LLM extraheert velden + confidence + agent-concerns | Nee |
-| `validate` | Verplichte velden, rekenkundige consistentie, datum, duplicaten | Ja |
-| `propose` | Mapt velden naar journaalpost o.b.v. tenant-config | Ja |
-| `review` | Operator-CLI: goedkeuren, corrigeren, escaleren, annuleren | Mens-in-de-lus |
-| `book_or_escalate` | Verstuurt boekstuk naar boekhoud-API (mock) of escaleert | Ja |
-| `log` | Schrijft volledige audit-trail naar `runs/<run_id>.json` | Ja |
+
+| Stap               | Verantwoordelijkheid                                            | Deterministisch?      |
+| ------------------ | --------------------------------------------------------------- | --------------------- |
+| `ingest`           | Lees bestand, normaliseer naar tekst, ken `run_id` toe          | Ja                    |
+| `classify_tenant`  | Bepaal voor welke klant de factuur is (CLI-arg of LLM-fallback) | Ja (CLI) / Nee (auto) |
+| `extract`          | LLM extraheert velden + confidence + agent-concerns             | Nee                   |
+| `validate`         | Verplichte velden, rekenkundige consistentie, datum, duplicaten | Ja                    |
+| `propose`          | Mapt velden naar journaalpost o.b.v. tenant-config              | Ja                    |
+| `review`           | Operator-CLI: goedkeuren, corrigeren, escaleren, annuleren      | Mens-in-de-lus        |
+| `book_or_escalate` | Verstuurt boekstuk naar boekhoud-API (mock) of escaleert        | Ja                    |
+| `log`              | Schrijft volledige audit-trail naar `runs/<run_id>.json`        | Ja                    |
+
 
 ### Componenten en verantwoordelijkheden
 
@@ -98,50 +100,55 @@ factuur.{txt,pdf,xlsx,html}
 
 ### Ontwerpkeuzes die ook anders hadden gekund
 
-| # | Keuze | Alternatief | Waarom deze kant op |
-|---|-------|-------------|---------------------|
-| 1 | LLM voor extractie | Regelgebaseerd (regex/template per leverancier) | Eén implementatie werkt voor onbekende leveranciers en talen. Tradeoff: niet-deterministisch → daarom een aparte deterministische validator achter de LLM. |
-| 2 | Tenant-config in filesystem | Database (Postgres, etc.) | Transparant, in git te zetten, geen infra nodig. Schaalt slecht bij honderden tenants en bij concurrent writes op `learned_rules.md`. |
-| 3 | Sequentieel, één factuur per run | Async / batch worker | MVP — simpel, makkelijk te debuggen. Productie met volume vereist een queue. |
-| 4 | Operator-eindverantwoordelijk | Auto-approve boven confidence X | Het kerncontract is "niets boeken zonder akkoord". Een fout geboekt grootboek terugdraaien is duurder dan een operator-minuut. |
-| 5 | Run-log per JSON-bestand | Centrale audit-database | Reproduceerbaar, transparant, makkelijk te delen voor één run. Maar duplicate-check via globbing schaalt slecht (zie risico's). |
-| 6 | Leerloop via natural-language regels | Fine-tuning per tenant | Leesbaar, aanpasbaar door operator, geen ML-pipeline nodig. Prompt-lengte groeit met aantal regels — op enig moment is herindexering nodig. |
-| 7 | Mock-adapter met expliciet HTTP-contract | Directe functie-aanroep stub | Vervangbaar door echte client zonder pipeline-wijziging. Contract zichtbaar in code. |
-| 8 | CLI als operator-interface | Web-UI vanaf dag 1 | Snel werkend, focus op pipeline-logica. `review.py` is geabstraheerd zodat een web-UI later kan zonder pipeline-aanpassingen. |
-| 9 | Per-tenant confidence-drempel | Globale drempel | Klanten met grote, gestandaardiseerde facturen kunnen scherper, kleine klanten ruimer. |
-| 10 | Concerns met severity uit twee bronnen (LLM + validator) | Alleen één bron | LLM ziet semantische twijfel ("ambigue leverancier"); validator ziet harde regels ("BTW klopt niet"). Samenvoegen in één lijst voor operator. |
-| 11 | Force-approve met expliciete typecode bevestiging | Stille override | Maakt de mens-in-de-lus zichtbaar in de audit log: `operator_confirmation` veld bewaart de bevestiging letterlijk. |
-| 12 | Operator-correcties worden via LLM tot regels geformuleerd, met conflictcheck | Direct opslaan zonder review | Voorkomt regelvervuiling en tegenstrijdige regels. Tradeoff: extra LLM-call per correctie. |
+
+| #   | Keuze                                                                         | Alternatief                                     | Waarom deze kant op                                                                                                                                        |
+| --- | ----------------------------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | LLM voor extractie                                                            | Regelgebaseerd (regex/template per leverancier) | Eén implementatie werkt voor onbekende leveranciers en talen. Tradeoff: niet-deterministisch → daarom een aparte deterministische validator achter de LLM. |
+| 2   | Tenant-config in filesystem                                                   | Database (Postgres, etc.)                       | Transparant, in git te zetten, geen infra nodig. Schaalt slecht bij honderden tenants en bij concurrent writes op `learned_rules.md`.                      |
+| 3   | Sequentieel, één factuur per run                                              | Async / batch worker                            | MVP — simpel, makkelijk te debuggen. Productie met volume vereist een queue.                                                                               |
+| 4   | Operator-eindverantwoordelijk                                                 | Auto-approve boven confidence X                 | Het kerncontract is "niets boeken zonder akkoord". Een fout geboekt grootboek terugdraaien is duurder dan een operator-minuut.                             |
+| 5   | Run-log per JSON-bestand                                                      | Centrale audit-database                         | Reproduceerbaar, transparant, makkelijk te delen voor één run. Maar duplicate-check via globbing schaalt slecht (zie risico's).                            |
+| 6   | Leerloop via natural-language regels                                          | Fine-tuning per tenant                          | Leesbaar, aanpasbaar door operator, geen ML-pipeline nodig. Prompt-lengte groeit met aantal regels — op enig moment is herindexering nodig.                |
+| 7   | Mock-adapter met expliciet HTTP-contract                                      | Directe functie-aanroep stub                    | Vervangbaar door echte client zonder pipeline-wijziging. Contract zichtbaar in code.                                                                       |
+| 8   | CLI als operator-interface                                                    | Web-UI vanaf dag 1                              | Snel werkend, focus op pipeline-logica. `review.py` is geabstraheerd zodat een web-UI later kan zonder pipeline-aanpassingen.                              |
+| 9   | Per-tenant confidence-drempel                                                 | Globale drempel                                 | Klanten met grote, gestandaardiseerde facturen kunnen scherper, kleine klanten ruimer.                                                                     |
+| 10  | Concerns met severity uit twee bronnen (LLM + validator)                      | Alleen één bron                                 | LLM ziet semantische twijfel ("ambigue leverancier"); validator ziet harde regels ("BTW klopt niet"). Samenvoegen in één lijst voor operator.              |
+| 11  | Force-approve met expliciete typecode bevestiging                             | Stille override                                 | Maakt de mens-in-de-lus zichtbaar in de audit log: `operator_confirmation` veld bewaart de bevestiging letterlijk.                                         |
+| 12  | Operator-correcties worden via LLM tot regels geformuleerd, met conflictcheck | Direct opslaan zonder review                    | Voorkomt regelvervuiling en tegenstrijdige regels. Tradeoff: extra LLM-call per correctie.                                                                 |
+
 
 ---
 
-## B. Wat we nodig hebben om dit echt te bouwen
+## B. Wat nodig om dit echt te bouwen
 
 ### Development & test
 
-**Van ons (Swoep.AI / dev-team):**
-- Anthropic API-key (sandbox, beperkt budget)
-- CI-omgeving (GitHub Actions volstaat)
+**Als de developer:**
+
+- Anthropic API-key 
+- CI-omgeving )
 - Lokale Python 3.11+ omgeving
-- Mock-boekhoud-adapter (al aanwezig)
+- Mock-boekhoud-adapter
 
 **Van de klant per administratie:**
+
 - 20–50 voorbeeldfacturen, gemixt:
   - verschillende leveranciers
-  - verschillende talen (NL/EN, evt. DE/FR)
+  - verschillende talen 
   - verschillende formaten (PDF gescand, PDF native, e-facturen, Excel)
   - inclusief randgevallen: creditfacturen, deelfacturen, valuta ≠ EUR, verlegde BTW
 - Rekeningschema (welke grootboekrekeningen, welke nummers)
 - Mapping van vaste leveranciers naar standaard-grootboekrekeningen
 - Lijst van verplichte velden voor deze klant
-- Confidence-drempel afspraak (bv. 0.85 standaard, 0.95 voor grote bedragen?)
+- Confidence-drempel afspraak (bv. 0.85 standaard, 0.95 voor grote bedragen)
 - 5–10 historisch correct geboekte facturen om `examples.jsonl` te seeden
 - BTW-bijzonderheden (verlegde BTW, 0%-tarief, internationale leveranciers)
 - Antwoord op: "Wat is een 'blocking' situatie waar de operator nooit zelf mag beslissen?"
 
 ### Productie
 
-**Van ons:**
+**Developer:**
+
 - Productie-omgeving (cloud of on-prem — keuze) met:
   - Python runtime
   - Persistente storage voor `runs/` en `tenants/`
@@ -151,6 +158,7 @@ factuur.{txt,pdf,xlsx,html}
 - Logging-infrastructuur met retentie- en privacy-beleid
 
 **Van de klant:**
+
 - Echte boekhoud-API:
   - URL + auth-mechanisme (OAuth? API key? mTLS?)
   - Volledig API-contract (request/response schema, foutcodes, rate-limits)
@@ -195,6 +203,7 @@ Werkende implementatie in deze repo:
 - **Voorbeeldfacturen:** `samples/`
 
 Geïmplementeerd:
+
 - Volledige 8-stappen pipeline, draaibaar end-to-end
 - LLM-extractie met confidence + agent-concerns (Claude Sonnet 4.6)
 - Validator: verplichte velden, confidence-drempel, rekenkundige consistentie, datum-checks, duplicate-detectie via run-log scan
@@ -211,28 +220,6 @@ Geïmplementeerd:
 
 ### Wat ik bewust niet heb gedaan in deze 4 uur, en waarom
 
-**1. Geen tests.** Bewust uitgesteld om eerst end-to-end functionaliteit werkend te hebben — pas dan weet je wat het te testen gedrag eigenlijk is. Voor een systeem dat met geldwerkstroom werkt is dit het allereerste dat ik zou toevoegen na deze 4 uur. `validate.py`, `propose.py`, `duplicate_check.py` zijn pure functies en lenen zich uitstekend voor unit-tests; pipeline-stappen kunnen end-to-end getest worden met gefixeerde LLM-respons.
-
-**2. Geen echte database.** Tenant-config en run-logs leven op het filesystem. Voor een MVP transparant en in git te zetten; bij volume (>1000 facturen, >50 tenants) loop je tegen schaalproblemen aan — vooral de duplicate-check die nu *elke* run-log leest.
-
-**3. Geen authenticatie / multi-user.** Operator = wie het commando uitvoert. Werkt voor MVP en demo; productie vereist named users met audit-trail per actie.
-
-**4. Geen async / batch.** Eén factuur per run, sequentieel. Simpel om te debuggen, maar bij 1000 facturen per dag wil je een queue worker met retry-logic.
-
-**5. Geen idempotentie op `book()`.** Als de boekhoud-API call slaagt maar het log-schrijven daarna faalt, kan een retry tot een dubbele boeking leiden.
-
-**6. Geen schema-validatie op `tenants/<slug>/config.yaml`.** Een typo in `required_fields` of `account_mapping` faalt pas tijdens runtime, mogelijk halverwege een factuur.
-
-**7. Geen retentie / PII-scrubbing op run-logs.** Logs bevatten volledige factuurinhoud (vendors, mogelijk persoonsgegevens) en complete prompts. AVG-relevant zodra dit live gaat.
-
-**8. Geen observability.** Geen metrics op confidence-drift, escalation-rate of force-approve-rate per tenant. Voor een leersysteem essentieel om te zien of `learned_rules.md` daadwerkelijk helpt of regressies veroorzaakt.
-
-**9. OCR is alleen een stub.** `pytesseract`-integratie is voorzien maar niet getest met echte scans.
-
-**10. Geen real-API client.** Alleen de mock-adapter — een echte implementatie hangt af van het API-contract van de boekhoudleverancier.
-
-### Volgende stap als ik door zou gaan
-
 Geprioriteerd, in deze volgorde:
 
 1. **Tests + CI.** `pytest` voor `validate.py`, `propose.py`, `duplicate_check.py` (deterministisch — geen LLM nodig). GitHub Actions workflow zodat elke push gevalideerd wordt. Voorwaarde voor alle volgende stappen.
@@ -247,19 +234,59 @@ Geprioriteerd, in deze volgorde:
 **Banaliteit-bias op de operator.** Het hele systeem hangt erop dat de operator de voorgestelde boeking serieus reviewt. Bij volume (50+ facturen per dag, meeste correct) treedt onvermijdelijk reflexmatig goedkeuren op. De LLM kan systematisch verkeerd extraheren — bijvoorbeeld door een prompt-injection in factuurtekst, of door modeldrift bij een Claude-versie-update — en als die output "redelijk" oogt zal een vermoeide operator er doorheen klikken.
 
 Mitigaties die in het huidige ontwerp zitten:
+
 - Validator achter de LLM die hard rekent (BTW-som, datum, verplichte velden)
 - Blocking concerns blokkeren `[a]` volledig — alleen `[fa]` met letterlijke bevestigingscode
 - Confidence-drempel per tenant
 - Volledige audit-trail per run
 
 Wat ontbreekt en wat ik zou toevoegen:
+
 - Tweede onafhankelijke LLM-pass die de eerste extractie controleert (cross-check), tegen extra kosten
 - Mogelijkheid om hoogwaardige facturen (boven X euro) een tweede operator-paar-ogen te vereisen
 - Een dashboard dat force-approve-rate per operator monitort; een operator die structureel veel force-approved is een rood signaal
 - Detectie van prompt-injection-pogingen in factuurtekst (eenvoudige heuristieken: instructies zoals "ignore previous", "you are now ...", verdachte tokens)
 
-Het tweede risico, met afstand: de **dubbele-boeking-race** in `book_or_escalate`. Zonder idempotency key kan een crash tussen API-call en log-schrijven tot een dubbele boeking leiden bij retry. Dit is sluipender dan de operator-bias omdat er geen menselijke kans is om het te merken — de boeking is al gebeurd.
+Het tweede risico in `book_or_escalate`. Zonder idempotency key kan een crash tussen API-call en log-schrijven tot een dubbele boeking leiden bij retry. Dit is sluipender dan de operator-bias omdat er geen menselijke kans is om het te merken — de boeking is al gebeurd.
 
----
+**Aannames:**
 
-*Bijlage: `Eisen.docx` in de repo bevat de formele eisen waar de implementatie op gebaseerd is.*
+  Ingest & formaten
+
+1. Facturen worden aangeleverd als plain text (.txt). Andere formaten
+  (PDF, HTML, Excel, scan) zijn gestubbed met NotImplementedError en     
+  implementatie-instructies.
+  1. OCR is een stub — er wordt vanuit gegaan dat de tekst al leesbaar
+    nant-classificatie
+  2. De tenant is altijd bekend bij aanroep via --tenant 
+    M-classificatie bestaat maar staat achter --auto-classify met        
+    pliciete waarschuwing.
+  3. Een nieuwe tenant toevoegen = map aanmaken met config.yaml. Geen
+    lidatie of de config volledig is bij aanmaken.
+    erregels
+  4. Leerregels worden als ongestructureerde markdown naar de LLM
+    stuurd. Bij meer dan ~20 regels per tenant wordt de prompt lang,     
+    levantie-retrieval via embeddings is dan de volgende stap.
+  5. Few-shot voorbeelden: de laatste 3 op datum. Geen semantische
+    lectie op relevantie voor de huidige factuur.  
+    tractie
+  6. Het model normaliseert meertalige facturen (NL/EN/DE/FR) naar
+    derlandse conventies, dit is geïnstrueerd in de prompt maar niet    
+    test op echte anderstalige facturen.
+  7. Confidence-scores komen van het LLM zelf,  ze zijn niet gekalibreerd tegen een testset.
+    ekhoud-API
+  8. De boekhoud-API is een mock die een realistisch HTTP-contract
+    muleert (POST /invoices, 201/422/500). Er worden geen echte
+    twerkverzoeken gedaan.
+  9. De productie-URL ([https://api.boekhouding.nl/v1](https://api.boekhouding.nl/v1)) is een placeholder, de echte URL komt uit een omgevingsvariabele.
+    erator & authenticatie
+  10. Geen authenticatie. De operator is wie het commando uitvoert.
+  11. De CLI is de operator-interface voor MVP. De abstractie in
+    eview.py]([http://review.py](http://review.py)) maakt een web-UI later mogelijk zonder pipeline-wijzigingen.   
+    eline
+  12. Sequentieel, één factuur per run. Geen batch-verwerking of async.
+  13. Run-logs in runs/ worden niet opgeruimd, bij productie gebruik is
+    n retentiebeleid nodig.
+
+
+
