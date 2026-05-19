@@ -75,7 +75,8 @@ class MockBookkeepingAdapter(BookkeepingAdapter):
     def env(self) -> str:
         return self._env
 
-    def book(self, proposed: ProposedBooking) -> str:
+    def book(self, proposed: ProposedBooking) -> tuple[str, dict]:
+        """Submit a booking. Returns (booking_id, audit_dict). Raises BookingError on failure."""
         request = BookingRequest(
             vendor=proposed.vendor,
             invoice_number=proposed.invoice_number,
@@ -102,14 +103,27 @@ class MockBookkeepingAdapter(BookkeepingAdapter):
 
         response = self._simulate_post(request)
 
+        audit = {
+            "booking_request": {
+                "method": "POST",
+                "url": f"{self._base_url}/invoices",
+                "body": request.to_dict(),
+            },
+            "booking_response": {
+                "status_code": response.status_code,
+                "booking_id": response.booking_id,
+                "message": response.message,
+                "timestamp": response.timestamp,
+            },
+        }
+
         if not response.ok:
             raise BookingError(
                 f"Boeking mislukt [{response.status_code}]: {response.message}\n"
                 f"URL: POST {self._base_url}/invoices"
             )
 
-        self._save_audit(request, response)
-        return response.booking_id
+        return response.booking_id, audit
 
     def _simulate_post(self, request: BookingRequest) -> BookingResponse:
         """Simulates the HTTP round-trip without making real network calls."""
