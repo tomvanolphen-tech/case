@@ -49,8 +49,8 @@ class BookingResponse:
 
 class BookkeepingAdapter(ABC):
     @abstractmethod
-    def book(self, proposed: ProposedBooking) -> str:
-        """Submit a booking. Returns booking_id. Raises on error."""
+    def book(self, proposed: ProposedBooking) -> tuple[str, dict]:
+        """Submit a booking. Returns (booking_id, audit_dict). Raises on error."""
 
     @abstractmethod
     def env(self) -> str:
