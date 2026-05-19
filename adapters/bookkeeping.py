@@ -17,6 +17,7 @@ class BookingRequest:
     currency: str
     journal_lines: list[dict]
     line_items: list[dict]
+    kostenplaats: str | None = None
     metadata: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -28,6 +29,7 @@ class BookingRequest:
             "currency": self.currency,
             "journal_lines": self.journal_lines,
             "line_items": self.line_items,
+            "kostenplaats": self.kostenplaats,
             "metadata": self.metadata,
         }
 
