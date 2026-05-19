@@ -23,44 +23,19 @@ def normalize_to_text(source: Path, source_type: str | None = None) -> Normalize
     """
     Converteert een brondocument naar genormaliseerde tekst voor de extractie-pipeline.
 
-    Ondersteund:
-      plain_text (.txt)  — leest bestand direct als UTF-8 tekst
-
-    Niet geïmplementeerd — raises NotImplementedError met implementatie-instructies:
-      pdf    — gebruik pdfplumber (tekstlagen) of pypdf als fallback;
-               voor gescande PDFs combineren met pytesseract.
-               Sla page_count op in metadata.
-      html   — gebruik BeautifulSoup4; strip navigatie, headers en scripts;
-               bewaar de paginatitel als metadata.
-      excel  — gebruik openpyxl; converteer relevante sheets naar tab-gescheiden tekst;
-               bewaar sheet_names in metadata.
-      scan   — gebruik pytesseract (lokaal) of een externe OCR-API (bijv. Google Vision);
-               sla ocr_confidence op in metadata.
+    Ondersteund: plain_text, pdf, html, excel
+    Niet geïmplementeerd: scan — gebruik pytesseract of externe OCR-API.
     """
     resolved_type = source_type or _EXTENSION_MAP.get(source.suffix.lower(), "plain_text")
 
     if resolved_type == "plain_text":
         return _read_plain_text(source)
     elif resolved_type == "pdf":
-        raise NotImplementedError(
-            "PDF-ingest is nog niet geïmplementeerd.\n"
-            "Aanbevolen aanpak: gebruik `pdfplumber` voor PDFs met een tekstlaag, "
-            "of `pypdf` als fallback. Sla `page_count` op in metadata.\n"
-            "Voor gescande PDFs: combineer met de `scan`-handler via pytesseract."
-        )
+        return _read_pdf(source)
     elif resolved_type == "html":
-        raise NotImplementedError(
-            "HTML-ingest is nog niet geïmplementeerd.\n"
-            "Aanbevolen aanpak: gebruik `beautifulsoup4` (bs4) met `html.parser`; "
-            "strip navigatie-elementen, scripts en stylesheets. "
-            "Bewaar de `<title>` als metadata['title']."
-        )
+        return _read_html(source)
     elif resolved_type == "excel":
-        raise NotImplementedError(
-            "Excel-ingest is nog niet geïmplementeerd.\n"
-            "Aanbevolen aanpak: gebruik `openpyxl`; converteer relevante werkbladen "
-            "naar tab-gescheiden platte tekst. Bewaar sheet-namen in metadata['sheet_names']."
-        )
+        return _read_excel(source)
     elif resolved_type == "scan":
         raise NotImplementedError(
             "Scan/afbeelding-ingest is nog niet geïmplementeerd.\n"
@@ -71,7 +46,7 @@ def normalize_to_text(source: Path, source_type: str | None = None) -> Normalize
     else:
         raise NotImplementedError(
             f"Bestandstype '{resolved_type}' wordt niet herkend. "
-            f"Ondersteund: plain_text. Gebruik --source-type om het type expliciet op te geven."
+            f"Gebruik --source-type om het type expliciet op te geven."
         )
 
 
@@ -82,6 +57,61 @@ def _read_plain_text(source: Path) -> NormalizedInput:
         source_file=str(source),
         source_type="plain_text",
         metadata={"encoding": "utf-8", "size_bytes": source.stat().st_size},
+    )
+
+
+def _read_pdf(source: Path) -> NormalizedInput:
+    import pdfplumber
+    pages = []
+    with pdfplumber.open(source) as pdf:
+        page_count = len(pdf.pages)
+        for page in pdf.pages:
+            text = page.extract_text()
+            if text:
+                pages.append(text)
+    return NormalizedInput(
+        text="\n\n".join(pages),
+        source_file=str(source),
+        source_type="pdf",
+        metadata={"page_count": page_count, "pages_with_text": len(pages)},
+    )
+
+
+def _read_html(source: Path) -> NormalizedInput:
+    from bs4 import BeautifulSoup
+    html = source.read_text(encoding="utf-8")
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup(["script", "style", "nav", "header", "footer"]):
+        tag.decompose()
+    title = soup.title.string.strip() if soup.title else ""
+    text = soup.get_text(separator="\n", strip=True)
+    return NormalizedInput(
+        text=text,
+        source_file=str(source),
+        source_type="html",
+        metadata={"title": title},
+    )
+
+
+def _read_excel(source: Path) -> NormalizedInput:
+    import openpyxl
+    wb = openpyxl.load_workbook(source, data_only=True)
+    sheet_names = wb.sheetnames
+    parts = []
+    for sheet_name in sheet_names:
+        ws = wb[sheet_name]
+        rows = []
+        for row in ws.iter_rows(values_only=True):
+            cells = [str(c) if c is not None else "" for c in row]
+            if any(cells):
+                rows.append("\t".join(cells))
+        if rows:
+            parts.append(f"=== Sheet: {sheet_name} ===\n" + "\n".join(rows))
+    return NormalizedInput(
+        text="\n\n".join(parts),
+        source_file=str(source),
+        source_type="excel",
+        metadata={"sheet_names": sheet_names},
     )
 
 
