@@ -152,9 +152,9 @@ Elke run schrijft `runs/<run_id>.json` met:
 | Formaat | Status |
 |---------|--------|
 | Plain text (`.txt`) | ✅ Werkt |
-| PDF (`.pdf`) | 🔧 Stub — gebruik `pdfplumber` of `pypdf` |
-| HTML (`.html`) | 🔧 Stub — gebruik `beautifulsoup4` |
-| Excel (`.xlsx`) | 🔧 Stub — gebruik `openpyxl` |
+| PDF (`.pdf`) | ✅ Werkt via `pdfplumber` |
+| HTML (`.html`) | ✅ Werkt via `beautifulsoup4` |
+| Excel (`.xlsx`) | ✅ Werkt via `openpyxl` |
 | Scan/afbeelding | 🔧 Stub — gebruik `pytesseract` |
 
 ---
