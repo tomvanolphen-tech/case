@@ -180,7 +180,7 @@ def build_extract_prompt(
 
 def extract(record: InvoiceRecord, tenant_config: TenantConfig) -> ExtractionResult:
     rules = tenant_io.load_learned_rules(tenant_config.slug)
-    examples = tenant_io.load_recent_examples(tenant_config.slug, config.FEW_SHOT_EXAMPLES_COUNT)
+    examples = tenant_io.load_relevant_examples(tenant_config.slug, record.raw_text, config.FEW_SHOT_EXAMPLES_COUNT)
 
     system, user = build_extract_prompt(record.raw_text, tenant_config, rules, examples)
     raw_response = call_llm(system=system, user=user)
