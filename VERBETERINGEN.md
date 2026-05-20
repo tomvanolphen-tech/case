@@ -396,3 +396,28 @@ Omdat deze vendors niet in `config.yaml` staan, valt de AI terug op de standaard
 
 - `samples/invoice_012.txt` t/m `samples/invoice_015.txt` — nieuwe facturen
 - `web/mailbox_data.py` — vier nieuwe inbox-items toegevoegd
+
+---
+
+## Verbetering L — Conflicterende regels worden automatisch vervangen
+
+### Probleem
+
+Als een operator een veld corrigeerde voor een vendor waarvoor al een geleerde regel bestond, werd de nieuwe regel simpelweg toegevoegd aan `learned_rules.md`. De oude regel bleef staan. De AI kreeg daardoor twee tegenstrijdige instructies voor dezelfde vendor — bijv. "Staples → 4200" én "Staples → 4100" — en het was niet voorspelbaar welke zou winnen.
+
+### Oplossing
+
+`append_rule()` in `core/tenant.py` controleert nu eerst of er al een vendor-specifieke regel bestaat voor dezelfde vendor. Als dat zo is, wordt die regel **vervangen** (nieuwe tekst, nieuwe datum, nieuwe run-referentie) in plaats van er een nieuwe naast te zetten.
+
+Er is daardoor nooit meer dan één actieve regel per vendor. De conflictwaarschuwing blijft wel zichtbaar — de operator ziet dat hij een bestaande regel overschrijft — maar de stapeling is onmogelijk geworden.
+
+### Gewijzigde bestanden
+
+- `core/tenant.py` — `append_rule()`: vervangt bestaande vendor-regel i.p.v. toevoegen
+
+### Hoe te testen
+
+1. Verwerk een factuur van een vendor (bijv. PostNL) en sla een correctie op als leerregel
+2. Verwerk opnieuw een PostNL-factuur en corrigeer naar een ander rekeningnummer
+3. Sla opnieuw op als leerregel
+4. Open `tenants/acme/learned_rules.md` — er staat nog maar **één** PostNL-regel met het nieuwe rekeningnummer
