@@ -195,3 +195,148 @@ Het scherm toont een regeloverzicht. Test de volgende acties:
 - `d 2` — verwijder regel 2 (met bevestigingsvraag); controleer dat `learned_rules.md` is bijgewerkt en hernummerd
 - `e 1` — bewerk de tekst van regel 1; controleer de nieuwe tekst in `learned_rules.md`
 - `q` — sluit het scherm af
+
+---
+
+## Verbetering E — Originele factuurtext inzien tijdens review
+
+### Probleem
+
+De operator kon tijdens de review niet de originele factuur raadplegen. Als de AI een veld onzeker of onjuist had geëxtraheerd, moest de operator het bronbestand apart openen. Dit verhoogde het risico op blinde goedkeuring.
+
+### Oplossing
+
+Een nieuwe optie `[v]` is toegevoegd aan het reviewmenu. Na het indrukken verschijnt de volledige ruwe factuurtext direct in de terminal, waarna het menu opnieuw verschijnt.
+
+```
+── ORIGINELE FACTUURTEXT ──────────────────────────
+FACTUUR
+
+Exact Software B.V.
+...
+────────────────────────────────────────────────────
+```
+
+### Gewijzigde bestanden
+
+- `pipeline/review.py` — `_print_menu()`: `[v]` toegevoegd aan het menu
+- `pipeline/review.py` — `run_review()`: `elif choice == "v"` handler toegevoegd
+
+### Hoe te testen
+
+Verwerk een factuur en druk tijdens de review op `[v]`. De originele factuurtext verschijnt en het menu keert daarna terug.
+
+---
+
+## Verbetering F — "Geleerde regel" als aparte redenering voor rekeningkeuze
+
+### Probleem
+
+Als de AI een rekeningnummer suggereerde op basis van een geleerde regel, toonde het reviewscherm "AI-suggestie (confidence: 0.97)". De operator kon niet zien of de suggestie uit de AI's eigen kennis kwam of uit een eerder door hem opgeslagen correctie.
+
+### Oplossing
+
+`_resolve_account_code()` controleert nu of er een geleerde regel bestaat voor de huidige vendor die het gesuggereerde rekeningnummer verklaart. Als dat zo is, toont het reviewscherm:
+
+> *"Rekeningkeuze: 4350 — Geleerde regel: PostNL B.V. → 4350"*
+
+De prioriteitsvolgorde is nu expliciet:
+1. Geleerde regel (vendor-specifiek)
+2. AI-suggestie (eigen redenering LLM)
+3. Vendor-mapping in config.yaml
+4. Standaard kostenrekening
+
+### Gewijzigde bestanden
+
+- `pipeline/propose.py` — `_resolve_account_code()`: `slug` parameter toegevoegd, lookup op geleerde regels
+
+### Hoe te testen
+
+Verwerk een factuur van een vendor waarvoor een geleerde regel bestaat (bijv. PostNL na een eerdere correctie). Het reviewscherm toont "Geleerde regel: PostNL B.V. → 4350" in plaats van "AI-suggestie".
+
+---
+
+## Verbetering G — Relevantie filtering van few-shot voorbeelden
+
+### Probleem
+
+Bij elke factuurverwerking werden altijd de 3 meest recente voorbeelden meegestuurd naar de AI, ongeacht de vendor. Een recent Staples-voorbeeld is weinig nuttig als je een PostNL-factuur verwerkt — en kan zelfs verwarring veroorzaken.
+
+### Oplossing
+
+De nieuwe functie `load_relevant_examples()` sorteert voorbeelden op relevantie: voorbeelden waarvan de vendor in de huidige factuurtext voorkomt, gaan als eerste naar de AI. De overige slots worden gevuld met de meest recente andere voorbeelden.
+
+Voorbeeld: bij 4 opgeslagen voorbeelden (2x PostNL, 2x Staples) en een nieuwe PostNL-factuur sturen we de 2 PostNL-voorbeelden als eerste, dan de meest recente Staples als derde.
+
+### Gewijzigde bestanden
+
+- `core/tenant.py` — nieuwe functie `load_relevant_examples(slug, raw_text, n)`
+- `pipeline/extract.py` — `extract()` gebruikt nu `load_relevant_examples()` i.p.v. `load_recent_examples()`
+
+### Hoe te testen
+
+Sla voorbeelden op van meerdere vendors. Verwerk daarna een factuur van een specifieke vendor en controleer in het run-log (`runs/<tenant>/<run_id>.json`) onder `steps.extract.user_prompt` dat de vendor-relevante voorbeelden bovenaan staan.
+
+---
+
+## Verbetering H — Scaffolding voor nieuwe tenant
+
+### Probleem
+
+Een nieuwe klant toevoegen vereiste kennis van de interne mapstructuur en YAML-indeling. Een fout in `config.yaml` (verkeerde inspringing, ontbrekend veld) leidde tot een cryptische Python-fout diep in de pipeline — niet bij het aanmaken van de klant.
+
+### Oplossing
+
+Twee onderdelen:
+
+**1. `create_tenant()` in `core/tenant.py`**
+
+Maakt automatisch de volledige tenantmap aan met:
+- `config.yaml` op basis van een ingevuld template met verstandige standaardwaarden
+- Lege `learned_rules.md` met juiste header
+- Leeg `examples.jsonl`
+
+**2. YAML-validatie in `load_tenant_config()`**
+
+Bij elke opstart controleert het systeem of `config.yaml` geldig YAML is en de verplichte velden (`name`, `account_mapping`) bevat. Een heldere foutmelding wijst direct naar het probleem.
+
+**3. `--new-tenant` CLI in `main.py`**
+
+```
+python main.py --new-tenant
+```
+
+Interactief scherm vraagt slug, naam, BTW-nummer en valuta. Daarna is de tenant klaar voor gebruik.
+
+### Gewijzigde bestanden
+
+- `core/tenant.py` — `_CONFIG_TEMPLATE`, `create_tenant()`, YAML-validatie in `load_tenant_config()`
+- `main.py` — `new_tenant_cli()` functie en `--new-tenant` argument
+
+### Hoe te testen
+
+```
+python main.py --new-tenant
+```
+
+Vul een nieuwe slug in (bijv. `testklant`). Controleer dat `tenants/testklant/` bestaat met `config.yaml`, `learned_rules.md` en `examples.jsonl`. Verwerk daarna direct een factuur voor die tenant.
+
+---
+
+## Verbetering I — Run-logs per tenant in eigen submap
+
+### Probleem
+
+Alle run-logs van alle klanten lagen in dezelfde `runs/` map. Bij meerdere klanten werd het onmogelijk om snel alle facturen van één specifieke klant terug te vinden zonder handmatig JSON-bestanden te scannen.
+
+### Oplossing
+
+Run-logs worden nu opgeslagen in `runs/<tenant_slug>/<run_id>.json`. De submap wordt automatisch aangemaakt als die nog niet bestaat. Bestaande logs in de platte `runs/` map blijven onaangetast.
+
+### Gewijzigde bestanden
+
+- `pipeline/log.py` — `save_run_log()`: pad gewijzigd naar `config.RUNS_DIR / run_log.tenant_slug / run_id`
+
+### Hoe te testen
+
+Verwerk een factuur voor tenant `acme`. Het log verschijnt in `runs/acme/<run_id>.json` in plaats van `runs/<run_id>.json`.
