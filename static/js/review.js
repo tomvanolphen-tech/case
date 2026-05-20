@@ -140,6 +140,7 @@ function toggleRawText() {
   const visible = card.style.display !== 'none';
   card.style.display = visible ? 'none' : 'block';
   document.getElementById('btn-view-raw').textContent = visible ? 'Bekijk factuur' : 'Verberg factuur';
+  if (!visible) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function refreshReview(data) {
