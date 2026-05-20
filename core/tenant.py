@@ -98,10 +98,36 @@ def load_recent_examples(slug: str, n: int = config.FEW_SHOT_EXAMPLES_COUNT) -> 
     return entries[:n]
 
 
+_MAX_EXAMPLES_PER_VENDOR = 3
+
+
 def append_example(slug: str, entry: dict) -> None:
     path = _tenant_dir(slug) / "examples.jsonl"
-    with path.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    vendor = entry.get("input", {}).get("vendor", "")
+
+    # Load existing, cap per vendor to avoid unlimited growth
+    existing: list[dict] = []
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line:
+                try:
+                    existing.append(json.loads(line))
+                except json.JSONDecodeError:
+                    pass
+
+    if vendor:
+        vendor_entries = [e for e in existing if e.get("input", {}).get("vendor", "") == vendor]
+        if len(vendor_entries) >= _MAX_EXAMPLES_PER_VENDOR:
+            # Remove oldest vendor example to make room
+            oldest = min(vendor_entries, key=lambda e: e.get("added_at", ""))
+            existing = [e for e in existing if e is not oldest]
+
+    existing.append(entry)
+    path.write_text(
+        "\n".join(json.dumps(e, ensure_ascii=False) for e in existing) + "\n",
+        encoding="utf-8",
+    )
 
 
 def append_rule(slug: str, proposal: RuleProposal, run_id: str) -> None:
