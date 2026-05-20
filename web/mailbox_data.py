@@ -181,6 +181,17 @@ EMAILS: list[MockEmail] = [
         default_tenant="acme",
     ),
     MockEmail(
+        id="email-014",
+        subject="Factuur PNL-2024-03847 — PostNL (ontbrekende rekening)",
+        sender="facturatie@postnl.nl",
+        sender_name="PostNL B.V.",
+        received_at="2026-05-20T08:30:00Z",
+        attachment_filename="invoice_012.txt",
+        attachment_path=_path("invoice_012.txt"),
+        snippet=_snippet("invoice_012.txt"),
+        default_tenant="acme",
+    ),
+    MockEmail(
         id="email-012",
         subject="Factuur WSA-2024-00088 — Webdesign Studio Amsterdam",
         sender="facturatie@webdesignamsterdam.nl",
