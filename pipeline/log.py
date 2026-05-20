@@ -22,8 +22,9 @@ def log_step(run_log: RunLog, step: str, data: dict) -> None:
 
 
 def save_run_log(run_log: RunLog) -> Path:
-    config.RUNS_DIR.mkdir(parents=True, exist_ok=True)
-    path = config.RUNS_DIR / f"{run_log.run_id}.json"
+    tenant_dir = config.RUNS_DIR / run_log.tenant_slug
+    tenant_dir.mkdir(parents=True, exist_ok=True)
+    path = tenant_dir / f"{run_log.run_id}.json"
 
     payload = {
         "run_id": run_log.run_id,
