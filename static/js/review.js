@@ -130,8 +130,16 @@ function renderReview(data) {
   approveBtn.disabled = data.has_blocking;
   if (data.has_blocking) approveBtn.title = 'Geblokkeerd door blocking concerns';
 
+  document.getElementById('raw-text-content').textContent = data.raw_text || '';
   document.getElementById('review-area').classList.remove('hidden');
   document.getElementById('action-bar').classList.remove('hidden');
+}
+
+function toggleRawText() {
+  const card = document.getElementById('raw-text-card');
+  const visible = card.style.display !== 'none';
+  card.style.display = visible ? 'none' : 'block';
+  document.getElementById('btn-view-raw').textContent = visible ? 'Bekijk factuur' : 'Verberg factuur';
 }
 
 function refreshReview(data) {
