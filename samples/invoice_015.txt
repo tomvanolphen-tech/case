@@ -1,0 +1,28 @@
+FACTUUR
+
+UPS Nederland B.V.
+Hastelweg 150
+5652 CL Eindhoven
+KvK: 17078598
+BTW: NL003715090B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : UPS-2024-NL-00892
+Factuurdatum  : 2024-04-15
+Vervaldatum   : 2024-05-15
+
+Omschrijving                          Aantal    Prijs      Totaal
+-----------------------------------------------------------------
+UPS Standard binnenland                    4   € 9,80     € 39,20
+UPS Express internationaal                 1   € 54,00    € 54,00
+Brandstof- en energietoeslag                                € 6,30
+-----------------------------------------------------------------
+Subtotaal excl. BTW                                        € 99,50
+BTW 21%                                                    € 20,90
+Totaal te betalen                                         € 120,40
+
+Gelieve te betalen op NL91ABNA0417164300 t.n.v. UPS Nederland B.V.
