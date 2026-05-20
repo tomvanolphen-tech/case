@@ -340,3 +340,33 @@ Run-logs worden nu opgeslagen in `runs/<tenant_slug>/<run_id>.json`. De submap w
 ### Hoe te testen
 
 Verwerk een factuur voor tenant `acme`. Het log verschijnt in `runs/acme/<run_id>.json` in plaats van `runs/<run_id>.json`.
+
+---
+
+## Verbetering J — Originele factuurtext inzien in de browser
+
+### Probleem
+
+In de webinterface kon de operator de originele factuur niet raadplegen tijdens de review. Als de AI een veld verkeerd had geëxtraheerd, moest de operator het bronbestand apart openen. Dit verhoogde het risico op blinde goedkeuring.
+
+### Oplossing
+
+Een knop **"Bekijk factuur"** is toegevoegd aan de actiebalk onderaan het reviewscherm. Na het klikken klapt de originele factuurtext open boven de velden. Een tweede klik verbergt de tekst weer.
+
+De ruwe tekst wordt via de bestaande status-API meegestuurd (`raw_text` veld) en in de browser getoond in een leesbaar blok.
+
+### Gewijzigde bestanden
+
+- `web/routers/pipeline.py` — `raw_text` toegevoegd aan de `_serialise_run()` response
+- `static/pages/review.html` — inklapbaar factuur-paneel en "Bekijk factuur" knop in de actiebalk
+- `static/js/review.js` — `toggleRawText()` functie en koppeling aan de knop
+
+### Hoe te testen
+
+Start de server en verwerk een factuur via de browser:
+
+```
+python -m uvicorn web.app:app --reload --port 8000
+```
+
+Open het reviewscherm en klik op **"Bekijk factuur"** in de actiebalk. De originele factuurtext verschijnt boven de geëxtraheerde velden. Klik opnieuw om te verbergen.
