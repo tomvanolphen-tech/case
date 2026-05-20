@@ -158,16 +158,33 @@ def append_rule(slug: str, proposal: RuleProposal, run_id: str) -> None:
 
 
 def load_relevant_examples(slug: str, raw_text: str, n: int = config.FEW_SHOT_EXAMPLES_COUNT) -> list[dict]:
-    """Load examples sorted by relevance: vendor-matching examples first, then most recent."""
+    """Load examples in 3 tiers: vendor match → same account category → most recent."""
     path = _tenant_dir(slug) / "examples.jsonl"
     if not path.exists():
         return []
     lines = [l.strip() for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
     entries = [json.loads(l) for l in lines]
     entries.sort(key=lambda e: e.get("added_at", ""), reverse=True)
-    relevant = [e for e in entries if e.get("input", {}).get("vendor", "") in raw_text]
-    others = [e for e in entries if e not in relevant]
-    return (relevant + others)[:n]
+
+    # Tier 1: exact vendor match
+    vendor_match = [e for e in entries if e.get("input", {}).get("vendor", "") in raw_text]
+
+    # Tier 2: same account code as vendor-matching examples (category relevance)
+    account_codes = {
+        e.get("output", {}).get("suggested_account_code")
+        for e in vendor_match
+        if e.get("output", {}).get("suggested_account_code")
+    }
+    category_match = [
+        e for e in entries
+        if e not in vendor_match
+        and e.get("output", {}).get("suggested_account_code") in account_codes
+    ]
+
+    # Tier 3: remaining recent examples
+    others = [e for e in entries if e not in vendor_match and e not in category_match]
+
+    return (vendor_match + category_match + others)[:n]
 
 
 def list_tenants() -> list[str]:
