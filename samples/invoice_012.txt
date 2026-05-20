@@ -1,0 +1,26 @@
+FACTUUR
+
+PostNL B.V.
+Prinses Beatrixlaan 23
+2595 AK Den Haag
+KvK: 27124701
+BTW: NL003768777B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : PNL-2024-03847
+Factuurdatum  : 2024-03-05
+Vervaldatum   : 2024-04-04
+
+Omschrijving                          Bedrag
+----------------------------------------------
+Zakelijk pakketabonnement maart 2024   € 74,00
+Brandstoftoeslag                        € 6,00
+BTW 21%                                € 16,80
+----------------------------------------------
+Totaal te betalen                     € 96,80
+
+Gelieve te betalen op NL07INGB0007547460 t.n.v. PostNL B.V.
