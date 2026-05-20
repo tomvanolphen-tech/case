@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Review — Factuurverwerking</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+<nav>
+  <span class="brand">Factuurverwerking</span>
+  <a href="/static/pages/index.html">← Inbox</a>
+  <a href="/static/pages/rules.html">Geleerde regels</a>
+</nav>
+
+<!-- Spinner -->
+<div id="spinner-overlay" class="spinner-overlay">
+  <div class="spinner"></div>
+  <div class="spinner-label">LLM-extractie bezig…</div>
+</div>
+
+<div class="page">
+  <!-- Header -->
+  <div class="review-header">
+    <div>
+      <h1 id="header-vendor">—</h1>
+      <div class="meta" id="header-meta"></div>
+    </div>
+    <div id="header-confidence"></div>
+  </div>
+
+  <div id="review-area" class="hidden">
+    <div class="review-layout">
+      <!-- Left: fields + journal -->
+      <div>
+        <div class="card">
+          <div class="section-title">Geëxtraheerde velden</div>
+          <table>
+            <thead>
+              <tr><th>Veld</th><th>Waarde</th><th>Confidence</th><th></th></tr>
+            </thead>
+            <tbody id="fields-body"></tbody>
+          </table>
+          <div id="line-items-section"></div>
+        </div>
+
+        <div class="card mt-16">
+          <div class="section-title">Journaalpost</div>
+          <div id="journal-section"></div>
+        </div>
+      </div>
+
+      <!-- Right: concerns -->
+      <div>
+        <div class="card">
+          <div class="section-title">Bevindingen</div>
+          <div id="concerns-panel"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action bar -->
+  <div id="action-bar" class="action-bar hidden">
+    <button class="btn btn-success" id="btn-approve">Goedkeuren &amp; boeken</button>
+    <button class="btn btn-warning" id="btn-force">Force-approve</button>
+    <button class="btn btn-secondary" id="btn-escalate">Escaleren</button>
+    <button class="btn btn-outline" id="btn-cancel">Annuleren</button>
+  </div>
+</div>
+
+<!-- Correction modal -->
+<dialog id="correct-modal">
+  <div class="modal-header">
+    <h3>Veld corrigeren: <span id="modal-field-name"></span></h3>
+    <button class="btn btn-outline" id="modal-close" style="padding:2px 8px">✕</button>
+  </div>
+  <div class="modal-body">
+    <!-- Step 1: correct field -->
+    <div id="modal-step1">
+      <div class="form-group">
+        <div class="current-val" id="modal-current-val"></div>
+      </div>
+      <div class="form-group">
+        <label>Nieuwe waarde</label>
+        <input type="text" id="modal-new-val">
+      </div>
+      <div class="form-group">
+        <label>Notitie (optioneel)</label>
+        <input type="text" id="modal-note" placeholder="Bijv. verzendkosten conform rekeningschema">
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="modal-save-rule">
+        Opslaan als leerregel (LLM formuleert de regel)
+      </label>
+    </div>
+
+    <!-- Step 2: confirm rule -->
+    <div id="modal-step2" class="hidden">
+      <div class="section-title">Conceptregel bevestigen</div>
+      <div id="modal-rule-scope" class="text-muted mt-8" style="font-size:12px;margin-bottom:8px"></div>
+      <div id="modal-conflict-box" class="alert alert-danger hidden">
+        <strong>Mogelijk conflict:</strong> <span id="modal-conflict-detail"></span>
+      </div>
+      <div id="modal-gen-warning" class="alert alert-warning hidden"></div>
+      <div class="form-group">
+        <label>Regeltekst (aanpasbaar)</label>
+        <textarea id="modal-rule-text"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <!-- Step 1 footer -->
+    <div id="modal-footer-step1">
+      <button class="btn btn-outline" id="modal-cancel-step1" onclick="document.getElementById('correct-modal').close()">Annuleren</button>
+      <button class="btn btn-primary" id="modal-submit">Opslaan</button>
+    </div>
+    <!-- Step 2 footer -->
+    <div id="modal-footer-step2" class="hidden">
+      <button class="btn btn-outline" id="modal-skip-rule">Overslaan</button>
+      <button class="btn btn-primary" id="modal-confirm-rule">Regel opslaan</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="/static/js/review.js"></script>
+<script>
+  // Show step 2 footer when step 2 is shown
+  const step2 = document.getElementById('modal-step2');
+  const obs = new MutationObserver(() => {
+    const visible = !step2.classList.contains('hidden');
+    document.getElementById('modal-footer-step1').classList.toggle('hidden', visible);
+    document.getElementById('modal-footer-step2').classList.toggle('hidden', !visible);
+  });
+  obs.observe(step2, { attributes: true, attributeFilter: ['class'] });
+</script>
+</body>
+</html>
