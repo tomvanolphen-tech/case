@@ -24,10 +24,52 @@ def _tenant_dir(slug: str) -> Path:
     return config.TENANTS_DIR / slug
 
 
+_CONFIG_TEMPLATE = """\
+name: "{name}"
+vat_number: "{vat_number}"
+default_currency: "{currency}"
+required_fields:
+  - vendor
+  - amount_gross
+  - invoice_date
+  - invoice_number
+confidence_threshold: 0.80
+account_mapping:
+  default_expense: "4000"
+  vat_in: "1500"
+  accounts_payable: "1600"
+  vendors: {{}}
+"""
+
+
+def create_tenant(slug: str, name: str, vat_number: str = "", currency: str = "EUR") -> Path:
+    d = _tenant_dir(slug)
+    if d.exists():
+        raise ValueError(f"Tenant '{slug}' bestaat al.")
+    d.mkdir(parents=True)
+    (d / "config.yaml").write_text(
+        _CONFIG_TEMPLATE.format(name=name, vat_number=vat_number, currency=currency),
+        encoding="utf-8",
+    )
+    (d / "learned_rules.md").write_text(
+        f"# Geleerde regels voor {name}\n\n"
+        "(Nog geen geleerde regels. Regels worden hier automatisch toegevoegd na operator-correcties.)\n",
+        encoding="utf-8",
+    )
+    (d / "examples.jsonl").write_text("", encoding="utf-8")
+    return d
+
+
 def load_tenant_config(slug: str) -> TenantConfig:
     path = _tenant_dir(slug) / "config.yaml"
     with path.open(encoding="utf-8") as f:
-        data = yaml.safe_load(f)
+        try:
+            data = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise ValueError(f"Ongeldige config.yaml voor tenant '{slug}': {e}") from e
+    for key in ("name", "account_mapping"):
+        if key not in data:
+            raise ValueError(f"config.yaml voor tenant '{slug}' mist verplicht veld: '{key}'")
     return TenantConfig(
         slug=slug,
         name=data["name"],
