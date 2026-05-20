@@ -23,6 +23,24 @@ function tenantBadge(tenant) {
   return `<span class="badge ${cls}">${tenant || '?'}</span>`;
 }
 
+function fileTypeBadge(filename) {
+  const ext = filename.split('.').pop().toLowerCase();
+  const map = {
+    txt:  { label: 'TXT',   cls: 'badge-filetype-txt' },
+    pdf:  { label: 'PDF',   cls: 'badge-filetype-pdf' },
+    html: { label: 'HTML',  cls: 'badge-filetype-html' },
+    htm:  { label: 'HTML',  cls: 'badge-filetype-html' },
+    xlsx: { label: 'Excel', cls: 'badge-filetype-excel' },
+    xls:  { label: 'Excel', cls: 'badge-filetype-excel' },
+    csv:  { label: 'CSV',   cls: 'badge-filetype-excel' },
+    png:  { label: 'Scan',  cls: 'badge-filetype-scan' },
+    jpg:  { label: 'Scan',  cls: 'badge-filetype-scan' },
+    jpeg: { label: 'Scan',  cls: 'badge-filetype-scan' },
+  };
+  const { label, cls } = map[ext] || { label: ext.toUpperCase(), cls: 'badge-default' };
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
 function relativeTime(isoStr) {
   const diff = Date.now() - new Date(isoStr).getTime();
   const days = Math.floor(diff / 86400000);
