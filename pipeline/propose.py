@@ -37,7 +37,7 @@ def _fv(result: ExtractionResult, field_name: str, default=None):
 
 def propose(result: ExtractionResult, validation: ValidationResult, tenant_config: TenantConfig) -> ProposedBooking:
     mapping = tenant_config.account_mapping
-    expense_account, account_reason = _resolve_account_code(result, tenant_config)
+    expense_account, account_reason = _resolve_account_code(result, tenant_config, slug=tenant_config.slug)
     vat_account = str(mapping.get("vat_in", "1500"))
     ap_account = str(mapping.get("accounts_payable", "1600"))
 
