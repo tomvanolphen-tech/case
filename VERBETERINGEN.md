@@ -1,6 +1,6 @@
 # Verbeteringen — Swoep.AI Factuurverwerking
 
-Dit document beschrijft de vier verbeteringen die zijn doorgevoerd in het factuurverwerkingssysteem. Per verbetering staat het probleem, de oplossing, de gewijzigde bestanden en hoe je het kunt testen.
+Dit document beschrijft alle verbeteringen die zijn doorgevoerd in het factuurverwerkingssysteem. Per verbetering staat het probleem, de oplossing, de gewijzigde bestanden en hoe je het kunt testen.
 
 ---
 
