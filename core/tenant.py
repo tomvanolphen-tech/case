@@ -105,10 +105,23 @@ def append_example(slug: str, entry: dict) -> None:
 
 
 def append_rule(slug: str, proposal: RuleProposal, run_id: str) -> None:
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    existing_rules = list_rules(slug)
+
+    # Replace existing rule for same vendor instead of stacking conflicting rules
+    if proposal.scope == "vendor" and proposal.scope_value:
+        for rule in existing_rules:
+            if rule.scope == "vendor" and rule.scope_value == proposal.scope_value:
+                rule.rule_text = proposal.rule_text
+                rule.date = date_str
+                rule.run_id = run_id
+                _rewrite_rules(slug, existing_rules)
+                return
+
+    # No existing rule for this vendor — append as new
     path = _tenant_dir(slug) / "learned_rules.md"
     existing = path.read_text(encoding="utf-8") if path.exists() else f"# Geleerde regels voor {slug}\n"
     count = existing.count("## Regel")
-    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     scope_line = f"**Scope:** {proposal.scope}" + (f" — {proposal.scope_value}" if proposal.scope_value else "")
     new_rule = (
         f"\n## Regel {count + 1} — {date_str} (run: {run_id})\n"
