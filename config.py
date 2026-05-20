@@ -9,7 +9,7 @@ RUNS_DIR: Path = BASE_DIR / "runs"
 SAMPLES_DIR: Path = BASE_DIR / "samples"
 
 DEFAULT_CONFIDENCE_THRESHOLD: float = 0.85
-FEW_SHOT_EXAMPLES_COUNT: int = 3
+FEW_SHOT_EXAMPLES_COUNT: int = 5
 
 # Bookkeeping API
 BOOKKEEPING_ENV: str = os.getenv("BOOKKEEPING_ENV", "test")
