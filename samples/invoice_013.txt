@@ -1,0 +1,27 @@
+FACTUUR
+
+GLS Netherlands B.V.
+Breguetlaan 28
+1438 BC Oude Meer
+KvK: 34071977
+BTW: NL810031977B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : GLS-2024-01105
+Factuurdatum  : 2024-04-02
+Vervaldatum   : 2024-05-02
+
+Omschrijving                          Aantal    Prijs      Totaal
+-----------------------------------------------------------------
+Pakketbezorging binnenland                 8   € 8,50     € 68,00
+Retourverwerking                           2   € 4,25      € 8,50
+-----------------------------------------------------------------
+Subtotaal excl. BTW                                        € 76,50
+BTW 21%                                                    € 16,07
+Totaal te betalen                                          € 92,57
+
+Betaling binnen 30 dagen op IBAN NL84ABNA0123456789 t.n.v. GLS Netherlands B.V.
