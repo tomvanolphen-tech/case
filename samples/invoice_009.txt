@@ -1,0 +1,25 @@
+FACTUUR
+
+Adobe Systems B.V.
+Jachthavenweg 121
+1081 KM Amsterdam
+KvK: 34259244
+BTW: NL810644354B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : ADO-2024-00317
+Factuurdatum  : 2024-03-01
+Vervaldatum   : 2024-04-01
+
+Omschrijving                          Bedrag
+----------------------------------------------
+Adobe Creative Cloud (maart 2024)      € 59,99
+BTW 21%                                € 12,60
+----------------------------------------------
+Totaal te betalen                      € 72,59
+
+Gelieve te betalen op NL29ABNA0123456789 t.n.v. Adobe Systems B.V.
