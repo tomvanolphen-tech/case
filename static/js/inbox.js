@@ -60,6 +60,7 @@ function renderEmailList(list) {
       <div class="subject">${email.subject}</div>
       <div class="meta">
         <span class="time">${relativeTime(email.received_at)}</span>
+        ${fileTypeBadge(email.attachment_filename)}
         ${tenantBadge(email.default_tenant)}
       </div>
       <div class="snippet">${email.snippet}</div>
