@@ -363,6 +363,10 @@ def run_review(record: InvoiceRecord, proposed: ProposedBooking, tenant_config=N
                 rules_saved=rules_saved,
                 duration_seconds=round(duration, 1),
             )
+        elif choice == "v":
+            print("\n── ORIGINELE FACTUURTEXT ──────────────────────────")
+            print(record.raw_text)
+            print("────────────────────────────────────────────────────")
         elif choice == "x":
             print("\n  Geannuleerd. Geen actie ondernomen, niets opgeslagen.")
             duration = time.time() - start
