@@ -170,6 +170,17 @@ EMAILS: list[MockEmail] = [
         default_tenant="betaworks",
     ),
     MockEmail(
+        id="email-013",
+        subject="Factuur GLS-2024-00724 — GLS Netherlands",
+        sender="facturatie@gls-netherlands.com",
+        sender_name="GLS Netherlands B.V.",
+        received_at="2026-05-19T14:30:00Z",
+        attachment_filename="invoice_011.txt",
+        attachment_path=_path("invoice_011.txt"),
+        snippet=_snippet("invoice_011.txt"),
+        default_tenant="acme",
+    ),
+    MockEmail(
         id="email-012",
         subject="Factuur WSA-2024-00088 — Webdesign Studio Amsterdam",
         sender="facturatie@webdesignamsterdam.nl",
