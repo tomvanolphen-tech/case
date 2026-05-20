@@ -307,6 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-force').addEventListener('click', doForceApprove);
   document.getElementById('btn-escalate').addEventListener('click', doEscalate);
   document.getElementById('btn-cancel').addEventListener('click', doCancel);
+  document.getElementById('btn-view-raw').addEventListener('click', toggleRawText);
   document.getElementById('modal-submit').addEventListener('click', submitCorrection);
   document.getElementById('modal-confirm-rule').addEventListener('click', confirmRule);
   document.getElementById('modal-skip-rule').addEventListener('click', skipRule);
