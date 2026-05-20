@@ -1,0 +1,28 @@
+FACTUUR
+
+DPD (Netherlands) B.V.
+Hoevenweg 11
+5652 AW Eindhoven
+KvK: 17102753
+BTW: NL001745918B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : DPD-2024-00349
+Factuurdatum  : 2024-04-08
+Vervaldatum   : 2024-05-08
+
+Omschrijving                          Aantal    Prijs      Totaal
+-----------------------------------------------------------------
+Standaard pakketbezorging                  6   € 7,95     € 47,70
+Avondbezorging (18:00-21:00)               2   € 11,50    € 23,00
+Brandstoftoeslag                                            € 4,50
+-----------------------------------------------------------------
+Subtotaal excl. BTW                                        € 75,20
+BTW 21%                                                    € 15,79
+Totaal te betalen                                          € 90,99
+
+Gelieve te betalen op NL29ABNA0473416439 t.n.v. DPD (Netherlands) B.V.
