@@ -145,6 +145,7 @@ def _print_menu(has_blocking: bool) -> None:
         print("  [fa] Force-approve (overschrijf blocking concerns)")
     else:
         print("  [a] Goedkeuren & boeken")
+    print("  [v] Bekijk originele factuurtext")
     print("  [c] Veld corrigeren")
     print("  [e] Escaleren")
     print("  [q] Afsluiten (opslaan als geëscaleerd)")
