@@ -1,0 +1,27 @@
+FACTUUR
+
+DHL Express Netherlands B.V.
+Bergschot 69
+4817 PA Breda
+KvK: 20094233
+BTW: NL004013532B01
+
+Aan:
+ACME Corp
+Postbus 100
+1000 AA Amsterdam
+
+Factuurnummer : DHL-2024-00581
+Factuurdatum  : 2024-03-05
+Vervaldatum   : 2024-04-04
+
+Omschrijving                          Aantal    Prijs      Totaal
+-----------------------------------------------------------------
+Expressverzending binnenland               3   € 14,50    € 43,50
+Expressverzending internationaal           1   € 38,00    € 38,00
+-----------------------------------------------------------------
+Subtotaal excl. BTW                                        € 81,50
+BTW 21%                                                    € 17,12
+Totaal te betalen                                          € 98,62
+
+Gelieve te betalen op NL56INGB0000123456 t.n.v. DHL Express Netherlands B.V.
