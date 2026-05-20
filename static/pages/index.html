@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inbox — Factuurverwerking</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+<nav>
+  <span class="brand">Factuurverwerking</span>
+  <a href="/static/pages/index.html" class="active">Inbox</a>
+  <a href="/static/pages/rules.html">Geleerde regels</a>
+</nav>
+
+<div class="page">
+  <div class="inbox-layout">
+    <!-- E-maillijst -->
+    <div class="email-list" id="email-list">
+      <div style="padding:20px;color:#adb5bd;text-align:center">Laden…</div>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-pane card">
+      <div id="preview-empty" class="empty-state">
+        Selecteer een e-mail om de factuur te bekijken
+      </div>
+      <div id="preview-content" class="hidden">
+        <div class="preview-header">
+          <h2 id="preview-subject"></h2>
+          <div class="meta" id="preview-meta"></div>
+        </div>
+        <div class="raw-text" id="preview-raw"></div>
+        <div class="process-bar">
+          <label style="font-size:12px;font-weight:600;color:#495057">Tenant:</label>
+          <select id="tenant-select"></select>
+          <button class="btn btn-primary" id="process-btn">Verwerk factuur</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/inbox.js"></script>
+</body>
+</html>
