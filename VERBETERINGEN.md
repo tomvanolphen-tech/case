@@ -370,3 +370,29 @@ python -m uvicorn web.app:app --reload --port 8000
 ```
 
 Open het reviewscherm en klik op **"Bekijk factuur"** in de actiebalk. De originele factuurtext verschijnt boven de geëxtraheerde velden. Klik opnieuw om te verbergen.
+
+---
+
+## Verbetering K — Testfacturen van postbedrijven toegevoegd
+
+### Wat
+
+Vier nieuwe sample-facturen toegevoegd van postbedrijven die niet in de vendor-mapping van `config.yaml` staan. Ze zijn ideaal om te oefenen met rekeningcorrectie en het aanmaken van geleerde regels.
+
+| Bestand | Bedrijf | Factuurnummer |
+|---|---|---|
+| `samples/invoice_012.txt` | PostNL B.V. | PNL-2024-03847 |
+| `samples/invoice_013.txt` | GLS Netherlands B.V. | GLS-2024-01105 |
+| `samples/invoice_014.txt` | DPD (Netherlands) B.V. | DPD-2024-00349 |
+| `samples/invoice_015.txt` | UPS Nederland B.V. | UPS-2024-NL-00892 |
+
+Alle vier facturen staan ook in de inbox van de webinterface (`web/mailbox_data.py`).
+
+### Waarom nuttig
+
+Omdat deze vendors niet in `config.yaml` staan, valt de AI terug op de standaardrekening (4000) of een eigen suggestie. De operator kan de rekening corrigeren en een geleerde regel opslaan, waarna volgende facturen van dezelfde vendor automatisch correct worden geboekt.
+
+### Gewijzigde bestanden
+
+- `samples/invoice_012.txt` t/m `samples/invoice_015.txt` — nieuwe facturen
+- `web/mailbox_data.py` — vier nieuwe inbox-items toegevoegd
