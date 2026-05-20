@@ -167,6 +167,7 @@ def _serialise_run(run_id: str) -> dict:
         "amount_gross": proposed.amount_gross,
         "currency": proposed.currency,
         "kostenplaats": proposed.kostenplaats,
+        "raw_text": record.raw_text,
     }
 
 
