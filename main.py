@@ -275,7 +275,13 @@ def main() -> None:
                         help="Boekhoud-omgeving (default: $BOOKKEEPING_ENV of 'test')")
     parser.add_argument("--manage-rules", action="store_true",
                         help="Open het beheerscherm voor geleerde regels (vereist --tenant)")
+    parser.add_argument("--new-tenant", action="store_true",
+                        help="Maak een nieuwe tenant aan via een interactief scherm")
     args = parser.parse_args()
+
+    if args.new_tenant:
+        new_tenant_cli()
+        return
 
     if args.manage_rules:
         if not args.tenant:
