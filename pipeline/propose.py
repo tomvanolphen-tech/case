@@ -1,7 +1,7 @@
 from core.models import Concern, ExtractionResult, JournalLine, ProposedBooking, TenantConfig, ValidationResult
 
 
-def _resolve_account_code(result: ExtractionResult, tenant_config: TenantConfig) -> tuple[str, str]:
+def _resolve_account_code(result: ExtractionResult, tenant_config: TenantConfig, slug: str | None = None) -> tuple[str, str]:
     """Returns (account_code, reason) so the operator can see why this account was chosen."""
     mapping = tenant_config.account_mapping
     vendors = mapping.get("vendors", {})
@@ -9,9 +9,18 @@ def _resolve_account_code(result: ExtractionResult, tenant_config: TenantConfig)
     vendor_val = result.fields.get("vendor")
     vendor_name = vendor_val.value if vendor_val else None
 
-    # Priority: extracted suggestion → vendor lookup → default
+    # Priority: geleerde regel → vendor mapping in config → AI suggestion → default
     suggested = result.fields.get("suggested_account_code")
     if suggested and suggested.value:
+        if slug and vendor_name:
+            from core.tenant import list_rules
+            rules = list_rules(slug)
+            match = next(
+                (r for r in rules if r.scope_value == vendor_name and str(suggested.value) in r.rule_text),
+                None,
+            )
+            if match:
+                return str(suggested.value), f"Geleerde regel: {vendor_name} → {suggested.value}"
         reason = f"AI-suggestie (confidence: {suggested.confidence:.2f})"
         return str(suggested.value), reason
     if vendor_name and vendor_name in vendors:
