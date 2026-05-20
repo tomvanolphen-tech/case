@@ -61,6 +61,17 @@
     </div>
   </div>
 
+  <!-- Originele factuurtext (uitklapbaar, boven actiebalk) -->
+  <div id="raw-text-card" style="display:none;margin:0 0 8px">
+    <div class="card">
+      <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
+        Originele factuurtext
+        <button class="btn btn-outline" onclick="toggleRawText()" style="font-size:11px;padding:2px 8px">Verbergen</button>
+      </div>
+      <pre id="raw-text-content" style="white-space:pre-wrap;font-size:13px;line-height:1.6;margin:8px 0 0;background:#f8f9fa;padding:12px;border-radius:6px;overflow-x:auto;max-height:400px;overflow-y:auto"></pre>
+    </div>
+  </div>
+
   <!-- Action bar -->
   <div id="action-bar" class="action-bar hidden">
     <button class="btn btn-success" id="btn-approve">Goedkeuren &amp; boeken</button>
