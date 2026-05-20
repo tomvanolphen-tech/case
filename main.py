@@ -165,6 +165,21 @@ def run_pipeline(invoice_file: str, tenant_slug: str | None = None, auto_classif
     print(f"  Run log: {log_path}")
 
 
+def new_tenant_cli() -> None:
+    print("\n── NIEUWE TENANT AANMAKEN ──────────────────────────")
+    slug = input("Slug (bijv. acme, betaworks): ").strip().lower()
+    name = input("Volledige naam (bijv. ACME Corp): ").strip()
+    vat  = input("BTW-nummer (optioneel, Enter om over te slaan): ").strip()
+    cur  = input("Valuta (Enter voor EUR): ").strip() or "EUR"
+    try:
+        path = tenant_io.create_tenant(slug, name, vat, cur)
+        print(f"\n  Tenant aangemaakt: {path}")
+        print(f"  Pas account_mapping aan in: {path / 'config.yaml'}")
+    except ValueError as e:
+        print(f"\n  Fout: {e}")
+        sys.exit(1)
+
+
 def manage_rules_cli(tenant_slug: str) -> None:
     """Interactive CLI for viewing, editing and deleting learned rules for a tenant."""
     from core import tenant as tenant_io
